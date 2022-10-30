@@ -3,17 +3,14 @@ import 'https://cdn.bootcdn.net/ajax/libs/konva/8.3.13/konva.js';
 import { container, resPath } from './const.js';
 import { createButtonLayer } from './button/index.js';
 import { createFinishLayer } from './finish/index.js';
+import { createToothLayer } from './tooth/index.js';
 
 class Tooth {
   /**
-   * @param {object} options 创建选项
+   * @param {object} options 创建选项{el,}
+   * @param {string} options.el 容器id
    */
   constructor(options) {
-    this.stage = new Konva.Stage({
-      container: 'app',
-      ...container,
-    });
-
     this.options = options;
   }
 
@@ -22,15 +19,21 @@ class Tooth {
   }
 
   create() {
+    this.stage = new Konva.Stage({
+      container: this.options.el,
+      ...container,
+    });
+
     // 按钮区
     const buttonsLayer = createButtonLayer();
     // 牙位区
-    // const toothsLayer = new Konva.Layer();
+    const toothsLayer = createToothLayer();
     // 完成操作区
     const finishLayer = createFinishLayer();
 
     this.stage.add(buttonsLayer);
     this.stage.add(finishLayer);
+    this.stage.add(toothsLayer);
   }
 
   getData() {
@@ -65,7 +68,9 @@ class Tooth {
   }
 }
 
-const app = new Tooth();
+const app = new Tooth({
+  el: 'app',
+});
 // app.preload();
 app.init();
 
