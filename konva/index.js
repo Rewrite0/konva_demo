@@ -12,6 +12,7 @@ class Tooth {
    */
   constructor(options) {
     this.options = options;
+    this.state = {};
   }
 
   init() {
@@ -64,6 +65,14 @@ class Tooth {
           document.head.appendChild(link);
         });
       }
+    }
+  }
+
+  search(one, id) {
+    if (one) {
+      return this.stage.findOne(id);
+    } else {
+      return this.stage.find(id);
     }
   }
 }

@@ -2,6 +2,7 @@ const style = {
   number: 16,
   width: 75,
   height: 520,
+  // id文本偏移量
   offsetY: 200,
   colLine: {
     color: '#484c55',

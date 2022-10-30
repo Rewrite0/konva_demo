@@ -1,6 +1,7 @@
 /*global Konva*/
 import { container } from '../const.js';
 import { style, toothIdList } from './const.js';
+import { resPath } from '../const.js';
 
 /**
  * 创建tooth layer
@@ -52,7 +53,7 @@ function createToothGroup() {
           break;
       }
 
-      const tooth = createToothStateGroup(id, x, y);
+      const tooth = createToothStateGroup(area, id, x, y);
       toothGroup.add(tooth);
     });
   });
@@ -64,7 +65,7 @@ function createToothGroup() {
  * 创建牙齿状态组
  * @param {number} id 牙齿id
  */
-function createToothStateGroup(id, x, y) {
+function createToothStateGroup(area, id, x, y) {
   const toothStateGroup = new Konva.Group({
     id: `tooth-${id}`,
     name: 'tooth',
@@ -77,7 +78,8 @@ function createToothStateGroup(id, x, y) {
   const toothId = new Konva.Text({
     text: id,
     x: 0,
-    y: 230,
+    // y: 230,
+    y: area < 2 ? 230 : 18,
     width: style.width,
     align: 'center',
     fill: style.color,
@@ -88,7 +90,43 @@ function createToothStateGroup(id, x, y) {
   // 状态group
   const stateGroup = new Konva.Group({
     name: 'state-group',
+    listening: false,
   });
+
+  // const state = {
+  //   // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面
+  //   fixed: ['default', 'crown', 'default_crown', 'inlay', 'only_crown', 'trim'],
+  //   // 个性化基台, 植体， 桩核
+  //   free: ['abutment', 'implant', 'post_core'],
+  // };
+
+  // 默认
+  const default_image = new Image();
+  default_image.src = `${resPath}/tooth/${id}/default.png`;
+  default_image.onload = () => {
+    const imageY = () => {
+      const offset = 90;
+      if (area < 2) {
+        return style.height / 2 - offset;
+      } else {
+        return offset;
+      }
+    };
+    const default_ = new Konva.Image({
+      name: 'default',
+      image: default_image,
+      x: style.width / 2,
+      y: imageY(),
+      offset: {
+        x: default_image.width / 2,
+        y: area < 2 ? default_image.height : 0,
+      },
+      listening: false,
+    });
+    stateGroup.add(default_);
+  };
+
+  toothStateGroup.add(stateGroup);
 
   return toothStateGroup;
 }
