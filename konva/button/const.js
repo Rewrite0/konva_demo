@@ -49,8 +49,8 @@ const buttons = [
   },
   {
     id: 'button10',
-    name: 'multi_select',
-    zhName: '选中多个',
+    name: 'clear_selected',
+    zhName: '清空选中',
   },
 ];
 

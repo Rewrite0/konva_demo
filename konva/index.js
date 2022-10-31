@@ -4,6 +4,7 @@ import { container, resPath } from './const.js';
 import { createButtonLayer } from './button/index.js';
 import { createFinishLayer } from './finish/index.js';
 import { createToothLayer } from './tooth/index.js';
+import { state } from './state.js';
 
 class Tooth {
   /**
@@ -12,19 +13,22 @@ class Tooth {
    */
   constructor(options) {
     this.options = options;
-    this.state = {};
-  }
 
-  init() {
-    this.create();
-  }
-
-  create() {
     this.stage = new Konva.Stage({
       container: this.options.el,
       ...container,
     });
 
+    state.stage = this.stage;
+    this.state = state;
+  }
+
+  init(callback) {
+    this.create();
+    typeof callback == 'function' && callback(this);
+  }
+
+  create() {
     // 按钮区
     const buttonsLayer = createButtonLayer();
     // 牙位区
@@ -44,7 +48,7 @@ class Tooth {
   /**
    * 资源预加载
    */
-  preload() {
+  preload(callback) {
     for (let i = 1; i <= 4; i++) {
       for (let j = 1; j <= 8; j++) {
         const src = `${resPath}/tooth/${i}${j}/`;
@@ -66,21 +70,18 @@ class Tooth {
         });
       }
     }
-  }
 
-  search(one, id) {
-    if (one) {
-      return this.stage.findOne(id);
-    } else {
-      return this.stage.find(id);
-    }
+    let timer = setTimeout(() => {
+      this.init(callback);
+      clearTimeout(timer);
+    }, 500);
   }
 }
 
 const app = new Tooth({
   el: 'app',
 });
-// app.preload();
-app.init();
+
+app.preload();
 
 export { Tooth };

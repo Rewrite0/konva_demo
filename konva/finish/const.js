@@ -10,7 +10,12 @@ const buttons = [
   {
     id: 'cancel',
     name: 'cancel',
-    zhName: '取消',
+    zhName: '返回',
+  },
+  {
+    id: 'reset',
+    name: 'reset',
+    zhName: '重置',
   },
 ];
 

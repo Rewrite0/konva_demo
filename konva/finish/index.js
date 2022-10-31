@@ -2,7 +2,7 @@
 import { container, buttonColor } from '../const.js';
 import { buttonStyle } from '../const.js';
 import { buttons } from './const.js';
-import { buttonHover } from '../methods.js';
+import { handleButtonEvent } from '../methods.js';
 
 /**
  * 创建button
@@ -52,9 +52,9 @@ function createButton(el, index) {
   buttonGroup.add(text);
 
   /**
-   * 按钮hover事件
+   * button事件
    */
-  buttonHover(buttonGroup);
+  handleButtonEvent(buttonGroup);
 
   return buttonGroup;
 }

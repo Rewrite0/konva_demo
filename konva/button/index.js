@@ -1,7 +1,7 @@
 /*global Konva*/
 import { resPath, buttonStyle } from '../const.js';
 import { buttons } from './const.js';
-import { buttonHover } from '../methods.js';
+import { handleButtonEvent } from '../methods.js';
 
 /**
  * 创建button
@@ -19,6 +19,7 @@ function createButton(el, index) {
    */
   const buttonGroup = new Konva.Group({
     id: el.id,
+    name: el.name,
     x,
     y,
   });
@@ -66,9 +67,9 @@ function createButton(el, index) {
   };
 
   /**
-   * 按钮hover事件
+   * button事件
    */
-  buttonHover(buttonGroup);
+  handleButtonEvent(buttonGroup);
 
   return buttonGroup;
 }
