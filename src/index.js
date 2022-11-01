@@ -82,6 +82,6 @@ const app = new Tooth({
   el: 'app',
 });
 
-app.preload();
+app.init();
 
 export { Tooth };

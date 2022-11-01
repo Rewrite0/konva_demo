@@ -193,6 +193,82 @@ function createToothStateGroup(area, id, x, y) {
     stateGroup.add(default_);
   };
 
+  // 冠
+  const crownImage = new Image();
+  crownImage.src = `${resPath}/tooth/${id}/crown.png`;
+  crownImage.onload = () => {
+    const crown = new Konva.Image({
+      name: 'crown',
+      image: crownImage,
+      x: style.width / 2,
+      y: imageY(),
+      offset: {
+        x: crownImage.width / 2,
+        y: area < 2 ? crownImage.height : 0,
+      },
+      listening: false,
+    });
+    stateGroup.add(crown);
+    crown.hide();
+  };
+
+  // 贴面
+  const trimImage = new Image();
+  trimImage.src = `${resPath}/tooth/${id}/trim.png`;
+  trimImage.onload = () => {
+    const trim = new Konva.Image({
+      name: 'trim',
+      image: trimImage,
+      x: style.width / 2,
+      y: imageY(),
+      offset: {
+        x: trimImage.width / 2,
+        y: area < 2 ? trimImage.height : 0,
+      },
+      listening: false,
+    });
+    stateGroup.add(trim);
+    trim.hide();
+  };
+
+  // 嵌体
+  const inlayImage = new Image();
+  inlayImage.src = `${resPath}/tooth/${id}/inlay.png`;
+  inlayImage.onload = () => {
+    const inlay = new Konva.Image({
+      name: 'inlay',
+      image: inlayImage,
+      x: style.width / 2,
+      y: imageY(),
+      offset: {
+        x: inlayImage.width / 2,
+        y: area < 2 ? inlayImage.height : 0,
+      },
+      listening: false,
+    });
+    stateGroup.add(inlay);
+    inlay.hide();
+  };
+
+  // 只有冠
+  const onlyCrownImage = new Image();
+  onlyCrownImage.src = `${resPath}/tooth/${id}/only_crown.png`;
+  onlyCrownImage.onload = () => {
+    const onlyCrown = new Konva.Image({
+      name: 'only_crown',
+      image: onlyCrownImage,
+      x: style.width / 2,
+      y: imageY(),
+      offset: {
+        x: onlyCrownImage.width / 2,
+        y: area < 2 ? onlyCrownImage.height : 0,
+      },
+      listening: false,
+    });
+    stateGroup.add(onlyCrown);
+    onlyCrown.hide();
+  };
+
   // 默认冠
   const defaultCrownImage = new Image();
   defaultCrownImage.src = `${resPath}/tooth/${id}/default_crown.png`;
@@ -284,82 +360,6 @@ function createToothStateGroup(area, id, x, y) {
     if (area >= 2) {
       implant.rotate(180);
     }
-  };
-
-  // 冠
-  const crownImage = new Image();
-  crownImage.src = `${resPath}/tooth/${id}/crown.png`;
-  crownImage.onload = () => {
-    const crown = new Konva.Image({
-      name: 'crown',
-      image: crownImage,
-      x: style.width / 2,
-      y: imageY(),
-      offset: {
-        x: crownImage.width / 2,
-        y: area < 2 ? crownImage.height : 0,
-      },
-      listening: false,
-    });
-    stateGroup.add(crown);
-    crown.hide();
-  };
-
-  // 贴面
-  const trimImage = new Image();
-  trimImage.src = `${resPath}/tooth/${id}/trim.png`;
-  trimImage.onload = () => {
-    const trim = new Konva.Image({
-      name: 'trim',
-      image: trimImage,
-      x: style.width / 2,
-      y: imageY(),
-      offset: {
-        x: trimImage.width / 2,
-        y: area < 2 ? trimImage.height : 0,
-      },
-      listening: false,
-    });
-    stateGroup.add(trim);
-    trim.hide();
-  };
-
-  // 嵌体
-  const inlayImage = new Image();
-  inlayImage.src = `${resPath}/tooth/${id}/inlay.png`;
-  inlayImage.onload = () => {
-    const inlay = new Konva.Image({
-      name: 'inlay',
-      image: inlayImage,
-      x: style.width / 2,
-      y: imageY(),
-      offset: {
-        x: inlayImage.width / 2,
-        y: area < 2 ? inlayImage.height : 0,
-      },
-      listening: false,
-    });
-    stateGroup.add(inlay);
-    inlay.hide();
-  };
-
-  // 只有冠
-  const onlyCrownImage = new Image();
-  onlyCrownImage.src = `${resPath}/tooth/${id}/only_crown.png`;
-  onlyCrownImage.onload = () => {
-    const onlyCrown = new Konva.Image({
-      name: 'only_crown',
-      image: onlyCrownImage,
-      x: style.width / 2,
-      y: imageY(),
-      offset: {
-        x: onlyCrownImage.width / 2,
-        y: area < 2 ? onlyCrownImage.height : 0,
-      },
-      listening: false,
-    });
-    stateGroup.add(onlyCrown);
-    onlyCrown.hide();
   };
 
   toothStateGroup.add(stateGroup);

@@ -18,7 +18,6 @@ function handleButtonEvent(button) {
   );
 
   button.on('click tap', function () {
-    console.log(this);
     const name = this.attrs.name;
     this.opacity(0.3);
     new Konva.Tween({
@@ -41,7 +40,6 @@ function handleButtonEvent(button) {
     // 其余button
     state.selected.forEach((id) => {
       const el = state.stage.findOne(`#${id}`);
-      // console.log(el, name);
       setToothState(el, name);
     });
   });
@@ -112,9 +110,13 @@ function handleToothEvent(tooth) {
  */
 function setToothState(tooth, status) {
   const id = tooth.attrs.id;
-  const group = tooth.findOne('.state-group');
+  // const group = tooth.findOne('.state-group');
+  // 已有状态
+  tooth.state = tooth.state || ['default'];
+  // 冲突状态
+  tooth.clash = tooth.clash || ['implant', 'abutment'];
 
-  // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面
+  // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面, 基台, 植体, 桩核
   const all = [
     'default',
     'crown',
@@ -126,36 +128,123 @@ function setToothState(tooth, status) {
     'implant',
     'post_core',
   ];
-  // 个性化基台, 植体， 桩核
-  const free = ['abutment', 'implant', 'post_core'];
-  // 杆卡, 桥架, 冠桥
-  const other = ['lever_clamp', 'bridge', 'crown_bridge'];
 
-  all
-    .filter((e) => e !== status)
-    .forEach((name) => {
-      console.log(name);
-      group.findOne(`.${name}`).hide();
-    });
+  // 冲突
+  const clash = [
+    // 桩核, 基台
+    ['post_core', 'abutment'],
+    // 桩核, 植体
+    ['post_core', 'implant'],
+    // 贴面, 嵌体, 牙冠
+    ['trim', 'inlay', 'crown'],
+    // 植体, 牙根, 贴面, 嵌体,
+    ['implant', 'trim', 'inlay', 'default'],
+    // 基台, 牙根, 贴面, 嵌体,
+    ['abutment', 'trim', 'inlay', 'default'],
+    // 杆卡, 桥架
+    ['lever_clamp', 'bridge'],
+  ];
 
-  if (status == 'crown') {
-    group.findOne(`.default`).show();
+  // 特殊状态, 杆卡, 桥架, 冠桥
+  const tsState = ['lever_clamp', 'bridge', 'crown_bridge'];
+  if (tsState.includes(status)) {
+    console.log(tooth);
+    return;
+  } else {
+    // 添加状态
+    if (tooth.state.includes(status)) {
+      // 已有该状态
+      console.log('已有状态', status);
+      return;
+    } else if (tooth.clash.includes(status)) {
+      // 冲突中有该状态
+      console.log(status, '存在于冲突列表');
+      clash.forEach((g) => {
+        if (g.includes(status)) {
+          console.log('该冲突项', g, '包含当前状态', status);
+          // 找到该状态的冲突项
+          const newClash = g.filter((e) => e !== status);
+          console.log(status, '对应冲突项', newClash);
+
+          // 找到当前tooth状态中包含哪个冲突 并去除旧状态
+          newClash.forEach((s) => {
+            if (tooth.state.includes(s)) {
+              console.log('冲突状态', s);
+              // 去除旧状态
+              tooth.state = tooth.state.filter((e) => e !== s);
+            }
+          });
+          // 将新状态加入状态列表
+          tooth.state.push(status);
+
+          // 去除旧冲突状态
+          g.forEach((s) => {
+            tooth.clash = tooth.clash.filter((e) => e !== s);
+          });
+          // 加入新冲突
+          tooth.clash = [...tooth.clash, ...newClash];
+
+          // 去重
+          tooth.state = tooth.state.filter((item, index) => tooth.state.indexOf(item) === index);
+          tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+
+          console.log('tooth', tooth.state, tooth.clash);
+        }
+      });
+    } else {
+      // 没有该状态
+      clash.forEach((g) => {
+        // 查找改状态对应的冲突列表
+        if (g.includes(status)) {
+          // 将其他冲突状态加入冲突列表
+          const arr = g.filter((e) => e !== status);
+          tooth.clash = [...tooth.clash, ...arr];
+        }
+      });
+      tooth.state.push(status);
+      // 去重
+      tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+    }
+    console.log('tooth', tooth);
   }
 
-  // 有基台或植体则没有牙根
-  if (status == 'abutment' || status == 'implant') {
-    all.forEach((e) => {
-      group.findOne(`.${e}`).hide();
-    });
-
-    group.findOne(`.default_crown`).show();
+  // 如果是贴面或嵌体, 将default移除冲突
+  if (['trim', 'inlay', 'post_core'].includes(status)) {
+    tooth.clash = tooth.clash.filter((e) => e !== 'default');
   }
 
-  group.findOne(`.${status}`).show();
+  // 清空状态显示
+  all.forEach((e) => {
+    tooth.findOne(`.${e}`).hide();
+  });
 
-  // state.data[status].push(id);
-  state.data[status] = [...state.data[status], id];
-  console.log('state data', state.data);
+  if (!tooth.clash.includes('default')) {
+    tooth.findOne('.default').show();
+  }
+
+  // 没有牙根的状态
+  const noToothRoot = ['abutment', 'implant'];
+  // 显示已有状态和特殊状态
+  tooth.state.forEach((s) => {
+    tooth.findOne(`.${s}`).show();
+    if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
+      tooth.findOne('.default_crown').show();
+    }
+  });
+
+  // 更新数据结果
+  for (const key in state.data) {
+    // 清空当前tooth状态数据
+    if (state.data[key].includes(id)) {
+      state.data[key] = state.data[key].filter((e) => e !== id);
+    }
+
+    // 加入新状态
+    if (tooth.state.includes(key)) {
+      state.data[key].push(id);
+    }
+  }
+  console.log('结果', state.data);
 }
 
 export { handleButtonEvent, handleToothEvent, setToothState };
