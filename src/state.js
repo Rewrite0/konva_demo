@@ -36,7 +36,7 @@ const state = new Proxy(
       return target[key];
     },
     set(target, key, val) {
-      console.log('set', target, key, val);
+      // console.log('set', target, key, val);
       target[key] = val;
       return true;
     },
