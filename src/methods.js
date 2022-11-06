@@ -204,6 +204,12 @@ function setToothConnect(status) {
   if (status == 'lever_clamp') {
     setLeverClamp(up.result, up.point);
     setLeverClamp(down.result, down.point);
+  } else if (status == 'bridge') {
+    setBridge(up.result, up.point);
+    setBridge(down.result, down.point);
+  } else if (status == 'crown_bridge') {
+    setCrownBridge(up.result, up.point);
+    setCrownBridge(down.result, down.point);
   }
 }
 
@@ -310,6 +316,20 @@ function setLeverClamp(arr = [], point = []) {
     tooth.add(line);
   });
 }
+
+/**
+ * 设置桥架样式
+ * @param {array} arr 需要设置杆卡样式的id列表
+ * @param {array} arr 该层的两个端点
+ */
+function setBridge(arr = [], point = []) {}
+
+/**
+ * 设置冠桥样式
+ * @param {array} arr 需要设置杆卡样式的id列表
+ * @param {array} arr 该层的两个端点
+ */
+function setCrownBridge(arr = [], point = []) {}
 
 /**
  * 设置tooth状态
