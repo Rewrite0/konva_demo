@@ -865,6 +865,14 @@ function setToothState(tooth, status) {
       state.data[key].push(id);
     }
   }
+
+  // 冠桥去重
+  if (state.data['crown_bridge'].length !== 0) {
+    state.data['crown_bridge'].forEach((id) => {
+      state.data['crown'] = state.data['crown'].filter((e) => e !== id);
+    });
+  }
+
   state.selected = state.selected;
   console.log('结果', state.data);
 }
