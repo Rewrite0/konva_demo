@@ -119,6 +119,10 @@ function createToothStateGroup(area, id, x, y) {
   // 绑定事件
   handleToothEvent(toothStateGroup);
 
+  // 默认状态和冲突
+  toothStateGroup.state = ['default'];
+  toothStateGroup.clash = ['implant', 'abutment'];
+
   const rect = new Konva.Rect({
     name: 'tooth-box',
     x: 0,

@@ -14,20 +14,20 @@ function elHover(el, enter, leave) {
         duration: 0.2,
         ...enter,
       }).play();
-    } else if (typeof enter === 'function') {
-      enter();
+    } else if (typeof enter == 'function') {
+      enter(this);
     }
   });
 
   el.on('mouseleave', function () {
-    if (typeof enter === 'object') {
+    if (typeof leave === 'object') {
       new Konva.Tween({
         node: this,
         duration: 0.2,
         ...leave,
       }).play();
-    } else if (typeof leave === 'function') {
-      leave();
+    } else if (typeof leave == 'function') {
+      leave(this);
     }
   });
 }

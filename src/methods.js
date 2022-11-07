@@ -9,22 +9,62 @@ import { state } from './state.js';
 function handleButtonEvent(button) {
   elHover(
     button,
-    {
-      opacity: 0.7,
+    (e) => {
+      state.selected.forEach((id) => {
+        const tooth = state.stage.findOne(`#${id}`);
+        if (tooth.state.includes(e.attrs.name)) {
+          e.opacity(0.5);
+        } else {
+          new Konva.Tween({
+            node: e,
+            duration: 0.2,
+            opacity: 0.7,
+          }).play();
+        }
+      });
     },
-    {
-      opacity: 1,
+    (e) => {
+      if (e.attrs.name === 'clear_selected') {
+        new Konva.Tween({
+          node: e,
+          duration: 0.2,
+          opacity: 1,
+        }).play();
+      }
+      state.selected.forEach((id) => {
+        const tooth = state.stage.findOne(`#${id}`);
+        if (tooth.state.includes(e.attrs.name)) {
+          e.opacity(0.5);
+        } else {
+          new Konva.Tween({
+            node: e,
+            duration: 0.2,
+            opacity: 1,
+          }).play();
+        }
+      });
     }
   );
 
   button.on('click tap', function () {
     const name = this.attrs.name;
     this.opacity(0.3);
-    new Konva.Tween({
-      node: this,
-      duration: 0.2,
-      opacity: 0.7,
-    }).play();
+    state.selected.forEach((id) => {
+      const tooth = state.stage.findOne(`#${id}`);
+      if (tooth.state.includes(name)) {
+        new Konva.Tween({
+          node: this,
+          duration: 0.2,
+          opacity: 1,
+        }).play();
+      } else {
+        new Konva.Tween({
+          node: this,
+          duration: 0.2,
+          opacity: 0.5,
+        }).play();
+      }
+    });
 
     if (state.selected.length === 0) return;
     // 清空
@@ -239,6 +279,15 @@ function setLeverClamp(arr = [], point = []) {
     const attrs = tooth.attrs;
     const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
 
+    if (tooth.state.includes('lever_clamp')) {
+      tooth.state = tooth.state.filter((e) => e !== 'lever_clamp');
+      tooth.findOne('.lever-clamp-line').remove();
+      tooth.findOne('.rect').remove();
+    }
+
+    tooth.state = [...tooth.state, 'lever_clamp'];
+    console.log(tooth);
+
     const rect = new Konva.Rect({
       ...style,
       x: attrs.width / 2,
@@ -322,7 +371,100 @@ function setLeverClamp(arr = [], point = []) {
  * @param {array} arr 需要设置杆卡样式的id列表
  * @param {array} arr 该层的两个端点
  */
-function setBridge(arr = [], point = []) {}
+function setBridge(arr = [], point = []) {
+  if (arr.length == 0) return;
+  const max = Math.max.apply(null, point);
+  const min = Math.min.apply(null, point);
+  let style = {
+    fill: '#76c914',
+    name: 'rect',
+    width: 10,
+    height: 10,
+  };
+  const offsetY = 65;
+
+  arr.forEach((id) => {
+    const tooth = state.stage.findOne(`#tooth-${id}`);
+    const attrs = tooth.attrs;
+    const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
+
+    const rect = new Konva.Circle({
+      ...style,
+      x: attrs.width / 2,
+      y,
+    });
+
+    tooth.add(rect);
+
+    const lineStyle = {
+      name: 'lever-clamp-line',
+      id: `lcl-${id}`,
+      stroke: style.fill,
+      strokeWidth: 1,
+      points: [0, y, attrs.width, y],
+    };
+
+    const left = [attrs.width / 2, y, attrs.width, y];
+    const right = [0, y, attrs.width / 2, y];
+
+    if (point.includes(id)) {
+      const number = id - (id % 10);
+      if (max - (max % 10) == min - (min % 10)) {
+        if (id == max) {
+          switch (number) {
+            case 10:
+              lineStyle.points = left;
+              break;
+            case 20:
+              lineStyle.points = right;
+              break;
+            case 30:
+              lineStyle.points = right;
+              break;
+            case 40:
+              lineStyle.points = left;
+              break;
+          }
+        } else {
+          switch (number) {
+            case 10:
+              lineStyle.points = right;
+              break;
+            case 20:
+              lineStyle.points = left;
+              break;
+            case 30:
+              lineStyle.points = left;
+              break;
+            case 40:
+              lineStyle.points = right;
+              break;
+          }
+        }
+      } else {
+        switch (number) {
+          case 10:
+            lineStyle.points = left;
+            break;
+          case 20:
+            lineStyle.points = right;
+            break;
+          case 30:
+            lineStyle.points = right;
+            break;
+          case 40:
+            lineStyle.points = left;
+            break;
+        }
+      }
+    }
+
+    const line = new Konva.Line({
+      ...lineStyle,
+    });
+    tooth.add(line);
+  });
+}
 
 /**
  * 设置冠桥样式
@@ -340,9 +482,10 @@ function setToothState(tooth, status) {
   const id = tooth.attrs.id;
   // const group = tooth.findOne('.state-group');
   // 已有状态
-  tooth.state = tooth.state || ['default'];
+  // tooth.state = tooth.state || ['default'];
   // 冲突状态
-  tooth.clash = tooth.clash || ['implant', 'abutment'];
+  // tooth.clash = tooth.clash || ['implant', 'abutment'];
+  // console.log(tooth);
 
   // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面, 基台, 植体, 桩核
   const all = [
@@ -377,7 +520,23 @@ function setToothState(tooth, status) {
   if (tooth.state.includes(status)) {
     // 已有该状态
     console.log('已有状态', status);
-    return;
+
+    tooth.state = tooth.state.filter((e) => e !== status);
+    console.log(tooth.state, tooth.clash);
+    clash.forEach((g) => {
+      if (g.includes(status)) {
+        const newClash = g.filter((e) => e !== status);
+        // 去除旧冲突状态
+        g.forEach((s) => {
+          tooth.clash = tooth.clash.filter((e) => e !== s);
+        });
+        // 加入新冲突
+        tooth.clash = [...tooth.clash, ...newClash];
+
+        // 去重
+        tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+      }
+    });
   } else if (tooth.clash.includes(status)) {
     // 冲突中有该状态
     console.log(status, '存在于冲突列表');
@@ -447,7 +606,9 @@ function setToothState(tooth, status) {
   const noToothRoot = ['abutment', 'implant'];
   // 显示已有状态和特殊状态
   tooth.state.forEach((s) => {
-    tooth.findOne(`.${s}`).show();
+    if (!['lever_clamp', 'bridge', 'crown_bridge'].includes(s)) {
+      tooth.findOne(`.${s}`).show();
+    }
     if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
       tooth.findOne('.default_crown').show();
     }
@@ -465,6 +626,7 @@ function setToothState(tooth, status) {
       state.data[key].push(id);
     }
   }
+  state.selected = state.selected;
   console.log('结果', state.data);
 }
 
