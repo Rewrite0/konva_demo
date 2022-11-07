@@ -1,6 +1,8 @@
 /*global Konva*/
 import { elHover } from './utils.js';
 import { state } from './state.js';
+import { buttons as finishs } from './finish/const.js';
+import { toothIdList } from './tooth/const.js';
 
 /**
  * button 处理事件
@@ -49,22 +51,45 @@ function handleButtonEvent(button) {
   button.on('click tap', function () {
     const name = this.attrs.name;
     this.opacity(0.3);
-    state.selected.forEach((id) => {
-      const tooth = state.stage.findOne(`#${id}`);
-      if (tooth.state.includes(name)) {
+
+    finishs.forEach((e) => {
+      if (e.name === name) {
         new Konva.Tween({
           node: this,
           duration: 0.2,
           opacity: 1,
         }).play();
       } else {
-        new Konva.Tween({
-          node: this,
-          duration: 0.2,
-          opacity: 0.5,
-        }).play();
+        state.selected.forEach((id) => {
+          const tooth = state.stage.findOne(`#${id}`);
+          if (tooth.state.includes(name)) {
+            new Konva.Tween({
+              node: this,
+              duration: 0.2,
+              opacity: 1,
+            }).play();
+          } else {
+            new Konva.Tween({
+              node: this,
+              duration: 0.2,
+              opacity: 0.5,
+            }).play();
+          }
+        });
       }
     });
+
+    if (name === 'reset') {
+      console.log('reset');
+      resetToothGroup();
+      return;
+    } else if (name === 'cancel') {
+      console.log('cancel');
+      return;
+    } else if (name === 'finish') {
+      console.log('finish');
+      return;
+    }
 
     if (state.selected.length === 0) return;
     // 清空
@@ -86,6 +111,33 @@ function handleButtonEvent(button) {
     state.selected.forEach((id) => {
       const el = state.stage.findOne(`#${id}`);
       setToothState(el, name);
+    });
+  });
+}
+
+/**
+ * 重置tooth状态
+ */
+function resetToothGroup() {
+  toothIdList.forEach((e) => {
+    e.forEach((id) => {
+      const tooth = state.stage.findOne(`#tooth-${id}`);
+
+      setToothState(tooth, 'default');
+      if (tooth.findOne('.lever-clamp-line')) {
+        tooth.findOne('.lever-clamp-line').remove();
+        tooth.findOne('.lever-clamp-rect').remove();
+      } else if (tooth.findOne('.bridge-line')) {
+        tooth.findOne('.bridge-line').remove();
+        tooth.findOne('.bridge-circle').remove();
+      } else if (tooth.findOne('.crown-bridge-line')) {
+        tooth.findOne('.crown-bridge-line').remove();
+      }
+      state.selected = [];
+      const box = state.stage.find('.tooth-box');
+      box.forEach((e) => {
+        e.strokeWidth(0);
+      });
     });
   });
 }
@@ -264,7 +316,7 @@ function setLeverClamp(arr = [], point = []) {
   const min = Math.min.apply(null, point);
   let style = {
     fill: '#c95820',
-    name: 'rect',
+    name: 'lever-clamp-rect',
     width: 10,
     height: 10,
     offset: {
@@ -274,6 +326,21 @@ function setLeverClamp(arr = [], point = []) {
   };
   const offsetY = 65;
 
+  let isReturn = true;
+  let noset = false;
+
+  arr.forEach((id) => {
+    const tooth = state.stage.findOne(`#tooth-${id}`);
+
+    if (tooth.state.includes('bridge')) noset = true;
+
+    if (!tooth.state.includes('lever_clamp')) {
+      isReturn = false;
+    }
+  });
+
+  if (noset) return;
+
   arr.forEach((id) => {
     const tooth = state.stage.findOne(`#tooth-${id}`);
     const attrs = tooth.attrs;
@@ -282,7 +349,17 @@ function setLeverClamp(arr = [], point = []) {
     if (tooth.state.includes('lever_clamp')) {
       tooth.state = tooth.state.filter((e) => e !== 'lever_clamp');
       tooth.findOne('.lever-clamp-line').remove();
-      tooth.findOne('.rect').remove();
+      tooth.findOne('.lever-clamp-rect').remove();
+
+      if (tooth.state.length == 0) {
+        tooth.state = [...tooth.state, 'default'];
+        tooth.findOne('.default').show();
+      }
+
+      if (isReturn) return;
+    } else {
+      tooth.state = tooth.state.filter((e) => e !== 'default');
+      tooth.findOne('.default').hide();
     }
 
     tooth.state = [...tooth.state, 'lever_clamp'];
@@ -300,7 +377,7 @@ function setLeverClamp(arr = [], point = []) {
       name: 'lever-clamp-line',
       id: `lcl-${id}`,
       stroke: style.fill,
-      strokeWidth: 1,
+      strokeWidth: 2,
       points: [0, y, attrs.width, y],
     };
 
@@ -377,16 +454,49 @@ function setBridge(arr = [], point = []) {
   const min = Math.min.apply(null, point);
   let style = {
     fill: '#76c914',
-    name: 'rect',
+    name: 'bridge-circle',
     width: 10,
     height: 10,
   };
   const offsetY = 65;
 
+  let isReturn = true;
+  let noset = false;
+
+  arr.forEach((id) => {
+    const tooth = state.stage.findOne(`#tooth-${id}`);
+
+    if (tooth.state.includes('lever_clamp')) noset = true;
+
+    if (!tooth.state.includes('bridge')) {
+      isReturn = false;
+    }
+  });
+
+  if (noset) return;
+
   arr.forEach((id) => {
     const tooth = state.stage.findOne(`#tooth-${id}`);
     const attrs = tooth.attrs;
     const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
+
+    if (tooth.state.includes('bridge')) {
+      tooth.state = tooth.state.filter((e) => e !== 'bridge');
+      tooth.findOne('.bridge-line').remove();
+      tooth.findOne('.bridge-circle').remove();
+
+      if (tooth.state.length == 0) {
+        tooth.state = [...tooth.state, 'default'];
+        tooth.findOne('.default').show();
+      }
+
+      if (isReturn) return;
+    } else {
+      tooth.state = tooth.state.filter((e) => e !== 'default');
+      tooth.findOne('.default').hide();
+    }
+
+    tooth.state = [...tooth.state, 'bridge'];
 
     const rect = new Konva.Circle({
       ...style,
@@ -397,10 +507,10 @@ function setBridge(arr = [], point = []) {
     tooth.add(rect);
 
     const lineStyle = {
-      name: 'lever-clamp-line',
+      name: 'bridge-line',
       id: `lcl-${id}`,
       stroke: style.fill,
-      strokeWidth: 1,
+      strokeWidth: 2,
       points: [0, y, attrs.width, y],
     };
 
@@ -471,7 +581,110 @@ function setBridge(arr = [], point = []) {
  * @param {array} arr 需要设置杆卡样式的id列表
  * @param {array} arr 该层的两个端点
  */
-function setCrownBridge(arr = [], point = []) {}
+function setCrownBridge(arr = [], point = []) {
+  if (arr.length == 0) return;
+  const max = Math.max.apply(null, point);
+  const min = Math.min.apply(null, point);
+  const offsetY = 100;
+
+  let isReturn = true;
+
+  arr.forEach((id) => {
+    const tooth = state.stage.findOne(`#tooth-${id}`);
+
+    if (!tooth.state.includes('crown_bridge')) {
+      isReturn = false;
+    }
+  });
+
+  arr.forEach((id) => {
+    const tooth = state.stage.findOne(`#tooth-${id}`);
+    const attrs = tooth.attrs;
+
+    if (tooth.state.includes('crown_bridge')) {
+      tooth.state = tooth.state.filter((e) => e !== 'crown_bridge');
+      tooth.findOne('.crown-bridge-line').remove();
+      setToothState(tooth, 'crown');
+
+      if (isReturn) return;
+    }
+
+    tooth.state = [...tooth.state, 'crown_bridge'];
+
+    const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
+    const lineStyle = {
+      name: 'crown-bridge-line',
+      id: `lcl-${id}`,
+      stroke: '#e5be48',
+      strokeWidth: 2,
+      points: [0, y, attrs.width, y],
+    };
+
+    const left = [attrs.width / 2, y, attrs.width, y];
+    const right = [0, y, attrs.width / 2, y];
+
+    if (point.includes(id)) {
+      const number = id - (id % 10);
+      if (max - (max % 10) == min - (min % 10)) {
+        if (id == max) {
+          switch (number) {
+            case 10:
+              lineStyle.points = left;
+              break;
+            case 20:
+              lineStyle.points = right;
+              break;
+            case 30:
+              lineStyle.points = right;
+              break;
+            case 40:
+              lineStyle.points = left;
+              break;
+          }
+        } else {
+          switch (number) {
+            case 10:
+              lineStyle.points = right;
+              break;
+            case 20:
+              lineStyle.points = left;
+              break;
+            case 30:
+              lineStyle.points = left;
+              break;
+            case 40:
+              lineStyle.points = right;
+              break;
+          }
+        }
+      } else {
+        switch (number) {
+          case 10:
+            lineStyle.points = left;
+            break;
+          case 20:
+            lineStyle.points = right;
+            break;
+          case 30:
+            lineStyle.points = right;
+            break;
+          case 40:
+            lineStyle.points = left;
+            break;
+        }
+      }
+    }
+
+    const line = new Konva.Line({
+      ...lineStyle,
+    });
+    tooth.add(line);
+
+    if (!tooth.state.includes('crown')) {
+      setToothState(tooth, 'crown');
+    }
+  });
+}
 
 /**
  * 设置tooth状态
@@ -480,12 +693,6 @@ function setCrownBridge(arr = [], point = []) {}
  */
 function setToothState(tooth, status) {
   const id = tooth.attrs.id;
-  // const group = tooth.findOne('.state-group');
-  // 已有状态
-  // tooth.state = tooth.state || ['default'];
-  // 冲突状态
-  // tooth.clash = tooth.clash || ['implant', 'abutment'];
-  // console.log(tooth);
 
   // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面, 基台, 植体, 桩核
   const all = [
@@ -516,26 +723,48 @@ function setToothState(tooth, status) {
     ['lever_clamp', 'bridge'],
   ];
 
+  // 拦截
+  const intercept = {
+    lever_clamp: ['inlay', 'trim', 'post_core'],
+    bridge: ['inlay', 'trim', 'post_core'],
+  };
+
+  // 拦截操作
+  for (const key in intercept) {
+    if (tooth.state.includes(key) && intercept[key].includes(status)) return;
+  }
+
+  if (tooth.state.includes('crown') && tooth.state.includes('crown_bridge')) {
+    if (status === 'crown') return;
+  }
+
   // 添加状态
   if (tooth.state.includes(status)) {
     // 已有该状态
     console.log('已有状态', status);
 
     tooth.state = tooth.state.filter((e) => e !== status);
-    console.log(tooth.state, tooth.clash);
-    clash.forEach((g) => {
-      if (g.includes(status)) {
-        const newClash = g.filter((e) => e !== status);
-        // 去除旧冲突状态
-        g.forEach((s) => {
-          tooth.clash = tooth.clash.filter((e) => e !== s);
-        });
-        // 加入新冲突
-        tooth.clash = [...tooth.clash, ...newClash];
+    if (tooth.state.length === 0) {
+      tooth.state.push('default');
+    }
 
-        // 去重
-        tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
-      }
+    // 重设冲突
+    tooth.state.forEach((s) => {
+      clash.forEach((g) => {
+        if (g.includes(s)) {
+          const newClash = g.filter((e) => e !== s);
+          // 去除旧冲突状态
+          g.forEach((s) => {
+            tooth.clash = tooth.clash.filter((e) => e !== s);
+          });
+
+          // 加入新冲突
+          tooth.clash = [...tooth.clash, ...newClash];
+
+          // 去重
+          tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+        }
+      });
     });
   } else if (tooth.clash.includes(status)) {
     // 冲突中有该状态
@@ -588,6 +817,11 @@ function setToothState(tooth, status) {
   }
   console.log('tooth', tooth);
 
+  if (status === 'default') {
+    tooth.state = ['default'];
+    tooth.clash = ['implant', 'abutment'];
+  }
+
   // 如果是贴面或嵌体, 将default移除冲突
   if (['trim', 'inlay', 'post_core'].includes(status)) {
     tooth.clash = tooth.clash.filter((e) => e !== 'default');
@@ -609,8 +843,13 @@ function setToothState(tooth, status) {
     if (!['lever_clamp', 'bridge', 'crown_bridge'].includes(s)) {
       tooth.findOne(`.${s}`).show();
     }
+
     if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
       tooth.findOne('.default_crown').show();
+    }
+
+    if (['lever_clamp', 'bridge'].includes(s)) {
+      tooth.findOne('.default').hide();
     }
   });
 
@@ -630,4 +869,4 @@ function setToothState(tooth, status) {
   console.log('结果', state.data);
 }
 
-export { handleButtonEvent, handleToothEvent, setToothState };
+export { handleButtonEvent, handleToothEvent, setToothState, resetToothGroup };

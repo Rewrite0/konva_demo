@@ -195,6 +195,7 @@ function createToothStateGroup(area, id, x, y) {
       listening: false,
     });
     stateGroup.add(default_);
+    default_.zIndex(0);
   };
 
   // 冠
