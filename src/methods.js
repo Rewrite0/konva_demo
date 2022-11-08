@@ -124,15 +124,19 @@ function resetToothGroup() {
       const tooth = state.stage.findOne(`#tooth-${id}`);
 
       setToothState(tooth, 'default');
+
       if (tooth.findOne('.lever-clamp-line')) {
         tooth.findOne('.lever-clamp-line').remove();
         tooth.findOne('.lever-clamp-rect').remove();
       } else if (tooth.findOne('.bridge-line')) {
         tooth.findOne('.bridge-line').remove();
         tooth.findOne('.bridge-circle').remove();
-      } else if (tooth.findOne('.crown-bridge-line')) {
+      }
+
+      if (tooth.findOne('.crown-bridge-line')) {
         tooth.findOne('.crown-bridge-line').remove();
       }
+
       state.selected = [];
       const box = state.stage.find('.tooth-box');
       box.forEach((e) => {
@@ -206,10 +210,73 @@ function handleToothEvent(tooth) {
  */
 function setToothConnect(status) {
   const list = state.selected;
+
   let up = [];
   let down = [];
+  let noset = false;
 
   list.forEach((id) => {
+    // 判断选中的牙是否在已设置的牙中, 如果是则清空所在的组
+    if (state.data[status].includes(id)) {
+      let group;
+
+      noset = true;
+
+      if (Number(id.match(/\d+/g)) < 30) {
+        group = state.data[status].filter((e) => {
+          return Number(e.match(/\d+/g)) < 30;
+        });
+      } else {
+        group = state.data[status].filter((e) => {
+          return Number(e.match(/\d+/g)) > 30;
+        });
+      }
+
+      group.forEach((id) => {
+        const tooth = state.stage.findOne(`#${id}`);
+        tooth.state = tooth.state.filter((e) => e !== status);
+
+        switch (status) {
+          case 'lever_clamp':
+            tooth.findOne('.lever-clamp-line').remove();
+            tooth.findOne('.lever-clamp-rect').remove();
+            break;
+          case 'bridge':
+            tooth.findOne('.bridge-line').remove();
+            tooth.findOne('.bridge-circle').remove();
+            break;
+          case 'crown_bridge':
+            tooth.findOne('.crown-bridge-line').remove();
+            setToothState(tooth, 'crown');
+            break;
+        }
+
+        state.data[status] = state.data[status].filter((e) => e !== id);
+
+        if (tooth.state.length == 0) {
+          tooth.state = [...tooth.state, 'default'];
+          tooth.findOne('.default').show();
+        }
+      });
+
+      const box = state.stage.find('.tooth-box');
+      box.forEach((e) => {
+        e.strokeWidth(0);
+      });
+
+      return;
+    } else {
+      if (list.length < 2) {
+        alert('请至少选择两个牙齿');
+
+        const box = state.stage.find('.tooth-box');
+        box.forEach((e) => {
+          e.strokeWidth(0);
+        });
+        return;
+      }
+    }
+
     const number = Number(id.match(/\d+/g));
     if (number > 30) {
       down.push(number);
@@ -217,6 +284,8 @@ function setToothConnect(status) {
       up.push(number);
     }
   });
+
+  if (noset) return;
 
   // 获取所有需要处理的牙齿id
   const getAllList = (arr) => {
@@ -347,9 +416,11 @@ function setLeverClamp(arr = [], point = []) {
     const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
 
     if (tooth.state.includes('lever_clamp')) {
+      // 清除已有
       tooth.state = tooth.state.filter((e) => e !== 'lever_clamp');
       tooth.findOne('.lever-clamp-line').remove();
       tooth.findOne('.lever-clamp-rect').remove();
+      state.data.lever_clamp = state.data.lever_clamp.filter((e) => e !== `tooth-${id}`);
 
       if (tooth.state.length == 0) {
         tooth.state = [...tooth.state, 'default'];
@@ -363,7 +434,6 @@ function setLeverClamp(arr = [], point = []) {
     }
 
     tooth.state = [...tooth.state, 'lever_clamp'];
-    console.log(tooth);
 
     const rect = new Konva.Rect({
       ...style,
@@ -440,6 +510,8 @@ function setLeverClamp(arr = [], point = []) {
       ...lineStyle,
     });
     tooth.add(line);
+
+    updateData(`tooth-${id}`);
   });
 }
 
@@ -484,6 +556,7 @@ function setBridge(arr = [], point = []) {
       tooth.state = tooth.state.filter((e) => e !== 'bridge');
       tooth.findOne('.bridge-line').remove();
       tooth.findOne('.bridge-circle').remove();
+      state.data.bridge = state.data.bridge.filter((e) => e !== `tooth-${id}`);
 
       if (tooth.state.length == 0) {
         tooth.state = [...tooth.state, 'default'];
@@ -573,6 +646,8 @@ function setBridge(arr = [], point = []) {
       ...lineStyle,
     });
     tooth.add(line);
+
+    updateData(`tooth-${id}`);
   });
 }
 
@@ -683,6 +758,8 @@ function setCrownBridge(arr = [], point = []) {
     if (!tooth.state.includes('crown')) {
       setToothState(tooth, 'crown');
     }
+
+    updateData(`tooth-${id}`);
   });
 }
 
@@ -853,6 +930,15 @@ function setToothState(tooth, status) {
     }
   });
 
+  updateData(id);
+}
+
+/**
+ * 更新数据
+ * @param {string} id tooth id
+ */
+function updateData(id) {
+  const tooth = state.stage.findOne(`#${id}`);
   // 更新数据结果
   for (const key in state.data) {
     // 清空当前tooth状态数据
@@ -877,4 +963,4 @@ function setToothState(tooth, status) {
   console.log('结果', state.data);
 }
 
-export { handleButtonEvent, handleToothEvent, setToothState, resetToothGroup };
+export { handleButtonEvent, handleToothEvent, setToothState, resetToothGroup, updateData };
