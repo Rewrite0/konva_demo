@@ -84,9 +84,11 @@ function handleButtonEvent(button) {
       resetToothGroup();
       return;
     } else if (name === 'cancel') {
+      typeof state.on.cancel == 'function' && state.on.cancel(state);
       console.log('cancel');
       return;
     } else if (name === 'finish') {
+      typeof state.on.finish == 'function' && state.on.finish(state);
       console.log('finish');
       return;
     }
@@ -94,11 +96,7 @@ function handleButtonEvent(button) {
     if (state.selected.length === 0) return;
     // 清空
     if (name == 'clear_selected' && state.selected.length > 0) {
-      state.selected = [];
-      const tooth = state.stage.find('.tooth-box');
-      tooth.forEach((e) => {
-        e.strokeWidth(0);
-      });
+      clearSelected();
       return;
     }
 
@@ -112,6 +110,17 @@ function handleButtonEvent(button) {
       const el = state.stage.findOne(`#${id}`);
       setToothState(el, name);
     });
+  });
+}
+
+/**
+ * 清除选中
+ */
+function clearSelected() {
+  state.selected = [];
+  const tooth = state.stage.find('.tooth-box');
+  tooth.forEach((e) => {
+    e.strokeWidth(0);
   });
 }
 
@@ -963,4 +972,11 @@ function updateData(id) {
   console.log('结果', state.data);
 }
 
-export { handleButtonEvent, handleToothEvent, setToothState, resetToothGroup, updateData };
+export {
+  handleButtonEvent,
+  handleToothEvent,
+  setToothState,
+  resetToothGroup,
+  updateData,
+  clearSelected,
+};

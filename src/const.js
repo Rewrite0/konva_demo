@@ -1,7 +1,7 @@
 /**
  * 资源路径
  */
-const resPath = '/res';
+const resPath = '/web/res';
 
 const container = {
   width: 1200,

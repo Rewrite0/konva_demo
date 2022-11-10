@@ -5,6 +5,7 @@ import { createButtonLayer } from './button/index.js';
 import { createFinishLayer } from './finish/index.js';
 import { createToothLayer } from './tooth/index.js';
 import { state } from './state.js';
+import { resetToothGroup, clearSelected } from './methods.js';
 
 class Tooth {
   /**
@@ -24,7 +25,6 @@ class Tooth {
     });
 
     state.stage = this.stage;
-    this.state = state;
   }
 
   init(callback) {
@@ -51,10 +51,11 @@ class Tooth {
   }
 
   getData() {
-    return this.state;
+    return state.data;
   }
 
   toImage() {
+    clearSelected();
     return this.stage.toDataURL({ pixelRatio: 1 });
   }
 
@@ -67,6 +68,14 @@ class Tooth {
     }
 
     downloadURI(this.toImage(), 'stage.png');
+  }
+
+  on(event, func) {
+    state.on[event] = func;
+  }
+
+  reset() {
+    resetToothGroup();
   }
 }
 

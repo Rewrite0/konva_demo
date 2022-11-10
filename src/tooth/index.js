@@ -346,7 +346,7 @@ function createToothStateGroup(area, id, x, y) {
       if (area < 2) {
         return startY - 48;
       } else {
-        return 90 + abutmentImage.height + 48;
+        return postCoreY() + abutmentImage.height + 6;
       }
     };
     // 植体

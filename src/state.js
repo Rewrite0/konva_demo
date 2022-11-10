@@ -12,6 +12,8 @@ const state = new Proxy(
     selected: [],
     // 事件监听
     listening: true,
+    // 监听函数
+    on: {},
     // 结果
     data: {
       // 牙冠
