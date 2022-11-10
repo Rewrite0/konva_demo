@@ -3,6 +3,7 @@ import { container } from '../const.js';
 import { style, toothIdList } from './const.js';
 import { resPath } from '../const.js';
 import { handleToothEvent } from '../methods.js';
+import { state } from '../state.js';
 
 /**
  * 创建tooth layer
@@ -115,6 +116,7 @@ function createToothStateGroup(area, id, x, y) {
     y,
     width: style.width,
     height: style.height,
+    listening: state.listening,
   });
   // 绑定事件
   handleToothEvent(toothStateGroup);

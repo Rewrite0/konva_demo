@@ -2,6 +2,7 @@
 import { resPath, buttonStyle } from '../const.js';
 import { buttons } from './const.js';
 import { handleButtonEvent } from '../methods.js';
+import { state } from '../state.js';
 
 /**
  * 创建button
@@ -22,6 +23,7 @@ function createButton(el, index) {
     name: el.name,
     x,
     y,
+    listening: state.listening,
   });
 
   /**

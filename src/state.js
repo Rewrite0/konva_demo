@@ -10,6 +10,8 @@ const state = new Proxy(
     stage: null,
     // 选中列表
     selected: [],
+    // 事件监听
+    listening: true,
     // 结果
     data: {
       // 牙冠
@@ -42,22 +44,25 @@ const state = new Proxy(
       console.log('change', key);
 
       const selected = target.selected;
-      // 按钮样式初始化
-      buttons.forEach(({ name }) => {
-        const btn = target.stage.findOne(`.${name}`);
-        if (btn) {
-          btn.opacity(1);
-        }
-      });
-      selected.forEach((id) => {
-        const tooth = target.stage.findOne(`#${id}`);
 
-        tooth.state.forEach((status) => {
-          if (status == 'default') return;
-          const btn = target.stage.findOne(`.${status}`);
-          btn.opacity(0.5);
+      if (target.stage !== null) {
+        // 按钮样式初始化
+        buttons.forEach(({ name }) => {
+          const btn = target.stage.findOne(`.${name}`);
+          if (btn) {
+            btn.opacity(1);
+          }
         });
-      });
+        selected.forEach((id) => {
+          const tooth = target.stage.findOne(`#${id}`);
+
+          tooth.state.forEach((status) => {
+            if (status == 'default') return;
+            const btn = target.stage.findOne(`.${status}`);
+            btn.opacity(0.5);
+          });
+        });
+      }
 
       return true;
     },

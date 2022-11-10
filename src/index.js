@@ -1,6 +1,6 @@
 /*global Konva*/
 import 'https://cdn.bootcdn.net/ajax/libs/konva/8.3.13/konva.js';
-import { container, resPath } from './const.js';
+import { container } from './const.js';
 import { createButtonLayer } from './button/index.js';
 import { createFinishLayer } from './finish/index.js';
 import { createToothLayer } from './tooth/index.js';
@@ -13,6 +13,10 @@ class Tooth {
    */
   constructor(options) {
     this.options = options;
+
+    if (options.listening == false) {
+      state.listening = options.listening;
+    }
 
     this.stage = new Konva.Stage({
       container: this.options.el,
@@ -36,8 +40,13 @@ class Tooth {
     // 完成操作区
     const finishLayer = createFinishLayer();
 
-    this.stage.add(buttonsLayer);
-    this.stage.add(finishLayer);
+    if (this.options.buttonsLayer !== false) {
+      this.stage.add(buttonsLayer);
+    }
+    if (this.options.finishLayer !== false) {
+      this.stage.add(finishLayer);
+    }
+
     this.stage.add(toothsLayer);
   }
 
@@ -45,43 +54,29 @@ class Tooth {
     return this.state;
   }
 
-  /**
-   * 资源预加载
-   */
-  preload(callback) {
-    for (let i = 1; i <= 4; i++) {
-      for (let j = 1; j <= 8; j++) {
-        const src = `${resPath}/tooth/${i}${j}/`;
-        const images = [
-          src + 'default.png',
-          src + 'default_crown.png',
-          src + 'crown.png',
-          src + 'only_crown.png',
-          src + 'inlay.png',
-          src + 'trim.png',
-        ];
+  toImage() {
+    return this.stage.toDataURL({ pixelRatio: 1 });
+  }
 
-        images.forEach((src) => {
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = 'image';
-          link.href = src;
-          document.head.appendChild(link);
-        });
-      }
+  downloadImage() {
+    function downloadURI(uri, name) {
+      var link = document.createElement('a');
+      link.download = name;
+      link.href = uri;
+      link.click();
     }
 
-    let timer = setTimeout(() => {
-      this.init(callback);
-      clearTimeout(timer);
-    }, 500);
+    downloadURI(this.toImage(), 'stage.png');
   }
 }
 
-const app = new Tooth({
-  el: 'app',
-});
+// const app = new Tooth({
+//   el: 'app',
+//   // listening: false,
+//   // finishLayer: false,
+//   // buttonsLayer: false,
+// });
 
-app.init();
+// app.init();
 
 export { Tooth };
