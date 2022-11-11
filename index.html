@@ -28,10 +28,22 @@
 
   <body>
     <div class="canvas-container flex-cer" id="app"></div>
-    <div class="canvas-container flex-cer" id="app2"></div>
   </body>
 
   <!-- S script -->
   <script src="./src/index.js" type="module"></script>
+  <script type="module">
+    import { Tooth } from './src/index.js';
+
+    const app = new Tooth({
+      el: 'app',
+      onlyAbutment: true,
+      // listening: false,
+      // finishLayer: false,
+      // buttonsLayer: false,
+    });
+
+    app.init();
+  </script>
   <!-- E script -->
 </html>

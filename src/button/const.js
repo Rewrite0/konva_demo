@@ -54,4 +54,17 @@ const buttons = [
   },
 ];
 
-export { buttons };
+const onlyAbutment = [
+  {
+    id: 'button8',
+    name: 'abutment',
+    zhName: '个性化基台',
+  },
+  {
+    id: 'button10',
+    name: 'clear_selected',
+    zhName: '清空选中',
+  },
+];
+
+export { buttons, onlyAbutment };

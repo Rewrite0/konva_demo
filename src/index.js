@@ -19,6 +19,10 @@ class Tooth {
       state.listening = options.listening;
     }
 
+    if (options.onlyAbutment) {
+      state.onlyAbutment = options.onlyAbutment;
+    }
+
     this.stage = new Konva.Stage({
       container: this.options.el,
       ...container,
@@ -78,14 +82,5 @@ class Tooth {
     resetToothGroup();
   }
 }
-
-const app = new Tooth({
-  el: 'app',
-  // listening: false,
-  // finishLayer: false,
-  // buttonsLayer: false,
-});
-
-app.init();
 
 export { Tooth };
