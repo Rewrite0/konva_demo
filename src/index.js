@@ -79,13 +79,13 @@ class Tooth {
   }
 }
 
-// const app = new Tooth({
-//   el: 'app',
-//   // listening: false,
-//   // finishLayer: false,
-//   // buttonsLayer: false,
-// });
+const app = new Tooth({
+  el: 'app',
+  // listening: false,
+  // finishLayer: false,
+  // buttonsLayer: false,
+});
 
-// app.init();
+app.init();
 
 export { Tooth };

@@ -393,7 +393,8 @@ function setLeverClamp(arr = [], point = []) {
   const max = Math.max.apply(null, point);
   const min = Math.min.apply(null, point);
   let style = {
-    fill: '#c95820',
+    // fill: '#c95820',
+    fill: 'orange',
     name: 'lever-clamp-rect',
     width: 10,
     height: 10,
@@ -923,16 +924,16 @@ function setToothState(tooth, status) {
   }
 
   // 没有牙根的状态
-  const noToothRoot = ['abutment', 'implant'];
+  // const noToothRoot = ['abutment', 'implant'];
   // 显示已有状态和特殊状态
   tooth.state.forEach((s) => {
     if (!['lever_clamp', 'bridge', 'crown_bridge'].includes(s)) {
       tooth.findOne(`.${s}`).show();
     }
 
-    if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
-      tooth.findOne('.default_crown').show();
-    }
+    // if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
+    //   tooth.findOne('.default_crown').show();
+    // }
 
     if (['lever_clamp', 'bridge'].includes(s)) {
       tooth.findOne('.default').hide();
