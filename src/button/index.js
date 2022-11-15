@@ -1,8 +1,7 @@
 /*global Konva*/
 import { resPath, buttonStyle } from '../const.js';
-import { buttons as allButtons, onlyAbutment, onlyImplant } from './const.js';
-import { handleButtonEvent } from '../methods.js';
-import { state } from '../state.js';
+// import { buttons as allButtons, onlyAbutment, onlyImplant } from './const.js';
+import { buttonList } from './const.js';
 
 /**
  * 创建button
@@ -23,7 +22,6 @@ function createButton(el, index) {
     name: el.name,
     x,
     y,
-    listening: state.listening,
   });
 
   /**
@@ -68,37 +66,25 @@ function createButton(el, index) {
     buttonGroup.add(text);
   };
 
-  /**
-   * button事件
-   */
-  handleButtonEvent(buttonGroup);
-
   return buttonGroup;
 }
 
 /**
  * 创建button layer
  */
-function createButtonLayer() {
-  const buttonLayer = new Konva.Layer({
+function createButtonLayer(state) {
+  const buttonsLayer = new Konva.Layer({
     name: 'buttonLayer',
   });
-  let buttons;
 
-  if (state.onlyAbutment) {
-    buttons = onlyAbutment;
-  } else if (state.onlyImplant) {
-    buttons = onlyImplant;
-  } else {
-    buttons = allButtons;
-  }
+  const buttons = buttonList(state);
 
   buttons.forEach((el, index) => {
     const buttonGroup = createButton(el, index);
-    buttonLayer.add(buttonGroup);
+    buttonsLayer.add(buttonGroup);
   });
 
-  return buttonLayer;
+  return buttonsLayer;
 }
 
 export { createButtonLayer };

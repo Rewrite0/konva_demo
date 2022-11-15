@@ -35,8 +35,10 @@
   <script type="module">
     import { Tooth } from './src/index.js';
 
+    const data = window.localStorage.getItem('data');
     const app = new Tooth({
       el: 'app',
+      init: data,
       // onlyAbutment: true,
       // onlyImplant: true,
       // listening: false,
@@ -45,6 +47,19 @@
     });
 
     app.init();
+
+    app.on('cancel', () => {
+      app.reset();
+    });
+
+    app.on('finish', () => {
+      const toothImage = app.toImage();
+      const data = app.getData();
+      // window.localStorage.setItem('data', JSON.stringify(data));
+      app.saveData();
+
+      console.log(toothImage, data);
+    });
   </script>
   <!-- E script -->
 </html>

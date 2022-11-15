@@ -1,14 +1,14 @@
 /*global Konva*/
 import { elHover } from './utils.js';
-import { state } from './state.js';
 import { buttons as finishs } from './finish/const.js';
 import { toothIdList } from './tooth/const.js';
 
 /**
  * button 处理事件
+ * @param {state} state app state
  * @param {KonvaEl} button button
  */
-function handleButtonEvent(button) {
+function handleButtonEvent(state, button) {
   elHover(
     button,
     (e) => {
@@ -81,7 +81,7 @@ function handleButtonEvent(button) {
 
     if (name === 'reset') {
       console.log('reset');
-      resetToothGroup();
+      resetToothGroup(state);
       return;
     } else if (name === 'cancel') {
       typeof state.on.cancel == 'function' && state.on.cancel(state);
@@ -96,70 +96,29 @@ function handleButtonEvent(button) {
     if (state.selected.length === 0) return;
     // 清空
     if (name == 'clear_selected' && state.selected.length > 0) {
-      clearSelected();
+      clearSelected(state);
       return;
     }
 
     if (['lever_clamp', 'bridge', 'crown_bridge'].includes(name)) {
-      setToothConnect(name);
+      setToothConnect(state, name);
       return;
     }
 
     // 其余button
     state.selected.forEach((id) => {
       const el = state.stage.findOne(`#${id}`);
-      setToothState(el, name);
-    });
-  });
-}
-
-/**
- * 清除选中
- */
-function clearSelected() {
-  state.selected = [];
-  const tooth = state.stage.find('.tooth-box');
-  tooth.forEach((e) => {
-    e.strokeWidth(0);
-  });
-}
-
-/**
- * 重置tooth状态
- */
-function resetToothGroup() {
-  toothIdList.forEach((e) => {
-    e.forEach((id) => {
-      const tooth = state.stage.findOne(`#tooth-${id}`);
-
-      setToothState(tooth, 'default');
-
-      if (tooth.findOne('.lever-clamp-line')) {
-        tooth.findOne('.lever-clamp-line').remove();
-        tooth.findOne('.lever-clamp-rect').remove();
-      } else if (tooth.findOne('.bridge-line')) {
-        tooth.findOne('.bridge-line').remove();
-        tooth.findOne('.bridge-circle').remove();
-      }
-
-      if (tooth.findOne('.crown-bridge-line')) {
-        tooth.findOne('.crown-bridge-line').remove();
-      }
-
-      state.selected = [];
-      const box = state.stage.find('.tooth-box');
-      box.forEach((e) => {
-        e.strokeWidth(0);
-      });
+      setToothState(state, el, name);
     });
   });
 }
 
 /**
  * tooth 处理事件
+ * @param {state} state app state
  * @param {KonvaEl} tooth tooth
  */
-function handleToothEvent(tooth) {
+function handleToothEvent(state, tooth) {
   tooth.on('mouseenter', function () {
     const id = this.attrs.id;
     if (!state.selected.includes(id)) {
@@ -214,10 +173,55 @@ function handleToothEvent(tooth) {
 }
 
 /**
+ * 清空选中
+ * @param {state} state app state
+ */
+function clearSelected(state) {
+  state.selected = [];
+  const tooth = state.stage.find('.tooth-box');
+  tooth.forEach((e) => {
+    e.strokeWidth(0);
+  });
+}
+
+/**
+ * 重置tooth状态
+ * @param {state} state app state
+ */
+function resetToothGroup(state) {
+  toothIdList.forEach((e) => {
+    e.forEach((id) => {
+      const tooth = state.stage.findOne(`#tooth-${id}`);
+
+      setToothState(state, tooth, 'default');
+
+      if (tooth.findOne('.lever-clamp-line')) {
+        tooth.findOne('.lever-clamp-line').remove();
+        tooth.findOne('.lever-clamp-rect').remove();
+      } else if (tooth.findOne('.bridge-line')) {
+        tooth.findOne('.bridge-line').remove();
+        tooth.findOne('.bridge-circle').remove();
+      }
+
+      if (tooth.findOne('.crown-bridge-line')) {
+        tooth.findOne('.crown-bridge-line').remove();
+      }
+
+      state.selected = [];
+      const box = state.stage.find('.tooth-box');
+      box.forEach((e) => {
+        e.strokeWidth(0);
+      });
+    });
+  });
+}
+
+/**
  * 设置杆卡, 桥架, 冠桥事件
+ * @param {state} state app state
  * @param {string} status 状态
  */
-function setToothConnect(status) {
+function setToothConnect(state, status) {
   const list = state.selected;
 
   let up = [];
@@ -256,7 +260,7 @@ function setToothConnect(status) {
             break;
           case 'crown_bridge':
             tooth.findOne('.crown-bridge-line').remove();
-            setToothState(tooth, 'crown');
+            setToothState(state, tooth, 'crown');
             break;
         }
 
@@ -372,23 +376,24 @@ function setToothConnect(status) {
   });
 
   if (status == 'lever_clamp') {
-    setLeverClamp(up.result, up.point);
-    setLeverClamp(down.result, down.point);
+    setLeverClamp(state, up.result, up.point);
+    setLeverClamp(state, down.result, down.point);
   } else if (status == 'bridge') {
-    setBridge(up.result, up.point);
-    setBridge(down.result, down.point);
+    setBridge(state, up.result, up.point);
+    setBridge(state, down.result, down.point);
   } else if (status == 'crown_bridge') {
-    setCrownBridge(up.result, up.point);
-    setCrownBridge(down.result, down.point);
+    setCrownBridge(state, up.result, up.point);
+    setCrownBridge(state, down.result, down.point);
   }
 }
 
 /**
  * 设置杆卡样式, 需分上下两层
+ * @param {state} state app state
  * @param {array} arr 需要设置杆卡样式的id列表
  * @param {array} arr 该层的两个端点
  */
-function setLeverClamp(arr = [], point = []) {
+function setLeverClamp(state, arr = [], point = []) {
   if (arr.length == 0) return;
   const max = Math.max.apply(null, point);
   const min = Math.min.apply(null, point);
@@ -521,16 +526,17 @@ function setLeverClamp(arr = [], point = []) {
     });
     tooth.add(line);
 
-    updateData(`tooth-${id}`);
+    updateData(state, `tooth-${id}`);
   });
 }
 
 /**
  * 设置桥架样式
+ * @param {state} state app state
  * @param {array} arr 需要设置杆卡样式的id列表
  * @param {array} arr 该层的两个端点
  */
-function setBridge(arr = [], point = []) {
+function setBridge(state, arr = [], point = []) {
   if (arr.length == 0) return;
   const max = Math.max.apply(null, point);
   const min = Math.min.apply(null, point);
@@ -657,16 +663,17 @@ function setBridge(arr = [], point = []) {
     });
     tooth.add(line);
 
-    updateData(`tooth-${id}`);
+    updateData(state, `tooth-${id}`);
   });
 }
 
 /**
  * 设置冠桥样式
+ * @param {state} state app state
  * @param {array} arr 需要设置杆卡样式的id列表
  * @param {array} arr 该层的两个端点
  */
-function setCrownBridge(arr = [], point = []) {
+function setCrownBridge(state, arr = [], point = []) {
   if (arr.length == 0) return;
   const max = Math.max.apply(null, point);
   const min = Math.min.apply(null, point);
@@ -689,7 +696,7 @@ function setCrownBridge(arr = [], point = []) {
     if (tooth.state.includes('crown_bridge')) {
       tooth.state = tooth.state.filter((e) => e !== 'crown_bridge');
       tooth.findOne('.crown-bridge-line').remove();
-      setToothState(tooth, 'crown');
+      setToothState(state, tooth, 'crown');
 
       if (isReturn) return;
     }
@@ -766,19 +773,20 @@ function setCrownBridge(arr = [], point = []) {
     tooth.add(line);
 
     if (!tooth.state.includes('crown')) {
-      setToothState(tooth, 'crown');
+      setToothState(state, tooth, 'crown');
     }
 
-    updateData(`tooth-${id}`);
+    updateData(state, `tooth-${id}`);
   });
 }
 
 /**
  * 设置tooth状态
+ * @param {state} state app state
  * @param {KonvaEl} tooth tooth el
  * @param {string} status 状态 - default, crown, default_crown, inlay, only_crown, trim, abutment, implant, post_core
  */
-function setToothState(tooth, status) {
+function setToothState(state, tooth, status) {
   const id = tooth.attrs.id;
 
   // 默认， 冠， 默认冠， 嵌体， 只有冠， 贴面, 基台, 植体, 桩核
@@ -940,14 +948,15 @@ function setToothState(tooth, status) {
     }
   });
 
-  updateData(id);
+  updateData(state, id);
 }
 
 /**
  * 更新数据
+ * @param {state} state app state
  * @param {string} id tooth id
  */
-function updateData(id) {
+function updateData(state, id) {
   const tooth = state.stage.findOne(`#${id}`);
   // 更新数据结果
   for (const key in state.data) {
@@ -980,4 +989,5 @@ export {
   resetToothGroup,
   updateData,
   clearSelected,
+  setToothConnect,
 };

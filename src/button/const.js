@@ -86,4 +86,14 @@ const onlyImplant = [
   },
 ];
 
-export { buttons, onlyAbutment, onlyImplant };
+function buttonList(state) {
+  if (state.onlyAbutment) {
+    return onlyAbutment;
+  } else if (state.onlyImplant) {
+    return onlyImplant;
+  } else {
+    return buttons;
+  }
+}
+
+export { buttonList };
