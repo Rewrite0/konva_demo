@@ -23,6 +23,10 @@ class Tooth {
       state.onlyAbutment = options.onlyAbutment;
     }
 
+    if (options.onlyImplant) {
+      state.onlyImplant = options.onlyImplant;
+    }
+
     this.stage = new Konva.Stage({
       container: this.options.el,
       ...container,

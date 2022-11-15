@@ -1,6 +1,6 @@
 /*global Konva*/
 import { resPath, buttonStyle } from '../const.js';
-import { buttons as allButtons, onlyAbutment } from './const.js';
+import { buttons as allButtons, onlyAbutment, onlyImplant } from './const.js';
 import { handleButtonEvent } from '../methods.js';
 import { state } from '../state.js';
 
@@ -85,6 +85,8 @@ function createButtonLayer() {
 
   if (state.onlyAbutment) {
     buttons = onlyAbutment;
+  } else if (state.onlyImplant) {
+    buttons = onlyImplant;
   } else {
     buttons = allButtons;
   }

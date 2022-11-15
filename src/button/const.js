@@ -54,6 +54,9 @@ const buttons = [
   },
 ];
 
+/**
+ * 仅基台
+ */
 const onlyAbutment = [
   {
     id: 'button8',
@@ -67,4 +70,20 @@ const onlyAbutment = [
   },
 ];
 
-export { buttons, onlyAbutment };
+/**
+ * 仅植体
+ */
+const onlyImplant = [
+  {
+    id: 'button3',
+    name: 'implant',
+    zhName: '植体',
+  },
+  {
+    id: 'button10',
+    name: 'clear_selected',
+    zhName: '清空选中',
+  },
+];
+
+export { buttons, onlyAbutment, onlyImplant };
