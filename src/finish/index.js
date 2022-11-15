@@ -65,7 +65,9 @@ function createButton(el, index) {
  * 创建button layer
  */
 function createFinishLayer() {
-  const buttonLayer = new Konva.Layer();
+  const buttonLayer = new Konva.Layer({
+    name: 'finishLayer',
+  });
 
   buttons.forEach((el, index) => {
     const buttonGroup = createButton(el, index);

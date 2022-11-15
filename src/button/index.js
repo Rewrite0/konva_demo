@@ -80,7 +80,9 @@ function createButton(el, index) {
  * 创建button layer
  */
 function createButtonLayer() {
-  const buttonLayer = new Konva.Layer();
+  const buttonLayer = new Konva.Layer({
+    name: 'buttonLayer',
+  });
   let buttons;
 
   if (state.onlyAbutment) {

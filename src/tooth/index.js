@@ -9,7 +9,9 @@ import { state } from '../state.js';
  * 创建tooth layer
  */
 function createToothLayer() {
-  const toothLayer = new Konva.Layer();
+  const toothLayer = new Konva.Layer({
+    name: 'toothLayer',
+  });
 
   // 添加表格
   toothLayer.add(createToothTable());

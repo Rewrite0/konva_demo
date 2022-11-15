@@ -27,10 +27,12 @@ class Tooth {
       state.onlyImplant = options.onlyImplant;
     }
 
+    // const json = window.localStorage.getItem('data');
     this.stage = new Konva.Stage({
       container: this.options.el,
       ...container,
     });
+    // this.stage = Konva.Node.create(json, this.options.el);
 
     state.stage = this.stage;
   }
