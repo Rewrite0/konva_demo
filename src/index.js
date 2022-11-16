@@ -35,6 +35,22 @@ class Tooth {
     this.state.stage = this.stage;
     this.create();
 
+    let timer = setInterval(() => {
+      let number = 298;
+      if (this.options.onlyAbutment || this.options.onlyImplant) {
+        number = 290;
+      }
+
+      if (this.stage.find('Image').length == number) {
+        clearInterval(timer);
+        timer = null;
+        this.setInitData();
+        typeof callback == 'function' && callback(this);
+      }
+    }, 200);
+  }
+
+  setInitData() {
     if (this.options.init) {
       const data = JSON.parse(this.options.init);
       let newData = {};
@@ -45,26 +61,22 @@ class Tooth {
         }
       }
 
-      window.onload = () => {
-        if (newData !== {}) {
-          for (const key in newData) {
-            if (['lever_clamp', 'bridge', 'crown_bridge'].includes(key)) {
-              this.state.selected = newData[key];
-              const button = this.stage.findOne(`.${key}`);
-              button.fire('click');
-              this.clearSelected();
-            } else {
-              for (const id of newData[key]) {
-                const tooth = this.stage.findOne(`#${id}`);
-                setToothState(this.state, tooth, key);
-              }
+      if (newData !== {}) {
+        for (const key in newData) {
+          if (['lever_clamp', 'bridge', 'crown_bridge'].includes(key)) {
+            this.state.selected = newData[key];
+            const button = this.stage.findOne(`.${key}`);
+            button.fire('click');
+            this.clearSelected();
+          } else {
+            for (const id of newData[key]) {
+              const tooth = this.stage.findOne(`#${id}`);
+              setToothState(this.state, tooth, key);
             }
           }
         }
-      };
+      }
     }
-
-    typeof callback == 'function' && callback(this);
   }
 
   /**
