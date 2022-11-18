@@ -295,9 +295,9 @@ function createToothStateGroup(area, id, x, y) {
     /**桩核y坐标 */
     const postCoreY = () => {
       if (area < 2) {
-        return startY - 6;
+        return startY + 20;
       } else {
-        return 90 + defaultCrownImage.height + 6;
+        return 90 + defaultCrownImage.height - 20;
       }
     };
 
