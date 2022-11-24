@@ -39,9 +39,20 @@
     import { Tooth } from './src/index.js';
 
     const data = window.localStorage.getItem('data');
+    const d = JSON.parse(data);
+    let n = {};
+    for (const key in d) {
+      if (d[key].length !== 0) {
+        n = {
+          ...n,
+          [key]: d[key],
+        };
+      }
+    }
+
     const app = new Tooth({
       el: 'app',
-      init: data,
+      init: JSON.stringify(n),
       // onlyAbutment: true,
       // onlyImplant: true,
       // listening: false,
@@ -59,7 +70,8 @@
       const toothImage = app.toImage();
       const data = app.getData();
       // window.localStorage.setItem('data', JSON.stringify(data));
-      app.saveData();
+      // app.saveData();
+      app.downloadImage();
 
       console.log(toothImage, data);
     });
