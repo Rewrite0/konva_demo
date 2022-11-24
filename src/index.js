@@ -217,12 +217,6 @@ class Tooth {
 
     this.stage.add(toothsLayer);
 
-    if (this.initData) {
-      const resultLayer = createResultLayer(this.initData, this.state);
-      this.stage.add(resultLayer);
-      resultLayer.hide();
-    }
-
     this.handleEvent();
   }
 
@@ -244,7 +238,19 @@ class Tooth {
    * @returns data
    */
   getData() {
-    return this.state.data;
+    let n = {};
+    const d = this.state.data;
+
+    for (const key in d) {
+      if (d[key].length !== 0) {
+        n = {
+          ...n,
+          [key]: d[key],
+        };
+      }
+    }
+
+    return n;
   }
 
   /**
@@ -270,8 +276,14 @@ class Tooth {
   toImage() {
     this.clearSelected();
 
+    // 创建结果layer
+    const resultLayer = createResultLayer(this.getData(), this.state);
+    this.stage.add(resultLayer);
+
+    const number = Object.keys(this.getData()).length;
     const space = this.state.resultItemSpace;
-    const number = Object.keys(this.initData).length;
+
+    // 计算新高度
     const newHeight =
       this.stage.height() +
       Math.ceil(number / 2) * (buttonStyle.height + space) -
@@ -279,13 +291,13 @@ class Tooth {
     this.stage.height(newHeight);
 
     this.stage.findOne('.finishLayer').hide();
-    this.stage.findOne('.resultLayer').show();
 
-    console.log('space', this.state.resultItemSpace, space);
-
+    // 生成图片
     const image = this.stage.toDataURL({ pixelRatio: 1 });
+
+    // 还原
     this.stage.findOne('.finishLayer').show();
-    this.stage.findOne('.resultLayer').hide();
+    resultLayer.remove();
     this.stage.height(container.height);
 
     return image;
