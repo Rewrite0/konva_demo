@@ -32,4 +32,25 @@ function elHover(el, enter, leave) {
   });
 }
 
-export { elHover };
+/**
+ * 获取牙位名
+ * @param {String} en key名
+ * @returns name
+ */
+function toothName(en) {
+  const obj = {
+    crown: '冠',
+    inlay: '嵌体',
+    implant: '植体',
+    lever_clamp: '杆卡',
+    post_core: '桩核',
+    crown_bridge: '冠桥',
+    trim: '贴面',
+    abutment: '个性化基台',
+    bridge: '桥架',
+  };
+
+  return obj[en];
+}
+
+export { elHover, toothName };

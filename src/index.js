@@ -1,11 +1,13 @@
 /*global Konva*/
 import 'https://cdn.bootcdn.net/ajax/libs/konva/8.3.13/konva.js';
 import { container } from './const.js';
+import { buttonStyle } from './const.js';
 import { buttons as finishButtons } from './finish/const.js';
 import { buttonList } from './button/const.js';
 import { createButtonLayer } from './button/index.js';
 import { createFinishLayer } from './finish/index.js';
 import { createToothLayer } from './tooth/index.js';
+import { createResultLayer } from './result/index.js';
 import {
   resetToothGroup,
   updateData,
@@ -33,6 +35,10 @@ class Tooth {
     });
 
     this.state.stage = this.stage;
+    this.initData = null;
+    if (this.options.init) {
+      this.initData = JSON.parse(this.options.init);
+    }
     this.create();
 
     let timer = setInterval(() => {
@@ -52,7 +58,7 @@ class Tooth {
 
   setInitData() {
     if (this.options.init) {
-      const data = JSON.parse(this.options.init);
+      const data = this.initData;
       let newData = {};
 
       for (const key in data) {
@@ -174,6 +180,27 @@ class Tooth {
    * 创建Layer
    */
   create() {
+    const bgLayer = new Konva.Layer({
+      name: 'background',
+    });
+
+    const bg = new Konva.Rect({
+      name: 'bg',
+      x: 0,
+      y: 0,
+      width: container.width,
+      // height: container.height,
+      height: 3000,
+      fill: '#2d313a',
+    });
+
+    bg.on('click tap', () => {
+      this.clearSelected();
+    });
+
+    bgLayer.add(bg);
+    this.stage.add(bgLayer);
+
     // 按钮区
     const buttonsLayer = createButtonLayer(this.state);
     // 牙位区
@@ -189,6 +216,12 @@ class Tooth {
     }
 
     this.stage.add(toothsLayer);
+
+    if (this.initData) {
+      const resultLayer = createResultLayer(this.initData, this.state);
+      this.stage.add(resultLayer);
+      resultLayer.hide();
+    }
 
     this.handleEvent();
   }
@@ -236,9 +269,25 @@ class Tooth {
    */
   toImage() {
     this.clearSelected();
+
+    const space = this.state.resultItemSpace;
+    const number = Object.keys(this.initData).length;
+    const newHeight =
+      this.stage.height() +
+      Math.ceil(number / 2) * (buttonStyle.height + space) -
+      buttonStyle.height;
+    this.stage.height(newHeight);
+
     this.stage.findOne('.finishLayer').hide();
+    this.stage.findOne('.resultLayer').show();
+
+    console.log('space', this.state.resultItemSpace, space);
+
     const image = this.stage.toDataURL({ pixelRatio: 1 });
     this.stage.findOne('.finishLayer').show();
+    this.stage.findOne('.resultLayer').hide();
+    this.stage.height(container.height);
+
     return image;
   }
 
