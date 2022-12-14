@@ -40,7 +40,12 @@ function createToothTable() {
   table.add(lineRow);
 
   const lineCol = new Konva.Line({
-    points: [(style.width * style.number) / 2, 0, (style.width * style.number) / 2, style.height],
+    points: [
+      (style.width * style.number) / 2,
+      0,
+      (style.width * style.number) / 2,
+      style.height,
+    ],
     stroke: style.colLine.color,
     strokeWidth: style.colLine.width,
     listening: false,
@@ -320,12 +325,19 @@ function createToothStateGroup(area, id, x, y) {
       postCore.rotate(180);
     }
 
+    const abutmentY = () => {
+      if (area < 2) {
+        return 60;
+      } else {
+        return 170;
+      }
+    };
     // 基台
     const abutment = new Konva.Image({
       name: 'abutment',
       image: abutmentImage,
       x: style.width / 2,
-      y: postCoreY(),
+      y: abutmentY(),
 
       offset: {
         x: abutmentImage.width / 2,
@@ -339,14 +351,16 @@ function createToothStateGroup(area, id, x, y) {
       abutment.rotate(180);
     }
 
+    // 内冠
     const implantY = () => {
       if (area < 2) {
-        return startY - 48;
+        return imageY() - 10;
       } else {
-        return postCoreY() + abutmentImage.height + 6;
+        return imageY() + 10;
       }
     };
-    // 植体
+
+    // 内冠
     const implant = new Konva.Image({
       name: 'implant',
       image: implantImage,

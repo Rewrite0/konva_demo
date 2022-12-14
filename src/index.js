@@ -113,6 +113,8 @@ class Tooth {
           post_core: [],
           // 冠桥
           crown_bridge: [],
+          // 内冠桥
+          inner_crown_bridge: [],
           // 贴面
           trim: [],
           // 基台
@@ -146,9 +148,14 @@ class Tooth {
               const tooth = target.stage.findOne(`#${id}`);
 
               tooth.state.forEach((status) => {
-                if (status == 'default') return;
-                const btn = target.stage.findOne(`.${status}`);
-                btn.opacity(0.5);
+                if (['default', ''].includes(status)) return;
+
+                if (status == 'inner_crown_bridge') {
+                  target.stage.findOne(`.implant`).opacity(0.5);
+                  target.stage.findOne(`.crown_bridge`).opacity(0.5);
+                } else {
+                  target.stage.findOne(`.${status}`)?.opacity(0.5);
+                }
               });
             });
           }

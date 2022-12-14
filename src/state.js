@@ -28,6 +28,8 @@ const state = new Proxy(
       post_core: [],
       // 冠桥
       crown_bridge: [],
+      // 内冠桥
+      inner_crown_bridge: [],
       // 贴面
       trim: [],
       // 基台
