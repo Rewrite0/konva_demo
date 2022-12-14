@@ -162,13 +162,17 @@ function createToothStateGroup(area, id, x, y) {
   //   free: ['abutment', 'implant', 'post_core'],
   // };
 
-  // 个性化基台图
+  // 化基台图
   const abutmentImage = new Image();
   abutmentImage.src = `${resPath}/abutment.png`;
 
   // 植体图
   const implantImage = new Image();
   implantImage.src = `${resPath}/implant.png`;
+
+  // 内冠图
+  const innerCrownImage = new Image();
+  innerCrownImage.src = `${resPath}/inner_crown.png`;
 
   // 桩核
   const postCoreImage = new Image();
@@ -375,6 +379,32 @@ function createToothStateGroup(area, id, x, y) {
     implant.hide();
     if (area >= 2) {
       implant.rotate(180);
+    }
+
+    const innerCrownY = () => {
+      if (area < 2) {
+        return imageY() - 10;
+      } else {
+        return imageY() + 10;
+      }
+    };
+    // 内冠
+    const innerCrown = new Konva.Image({
+      name: 'inner_crown',
+      image: innerCrownImage,
+      x: style.width / 2,
+      y: innerCrownY(),
+
+      offset: {
+        x: innerCrownImage.width / 2,
+        y: innerCrownImage.height,
+      },
+      listening: false,
+    });
+    stateGroup.add(innerCrown);
+    innerCrown.hide();
+    if (area >= 2) {
+      innerCrown.rotate(180);
     }
   };
 
