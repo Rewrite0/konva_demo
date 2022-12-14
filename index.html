@@ -1,69 +1,71 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <title>Document</title>
+    <title>Document</title>
 
-  <style>
-    :not(.not) {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
+    <style>
+      :not(.not) {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
 
-    .canvas-container {
-      width: 100vw;
-      min-width: 1200px;
-      min-height: 100vh;
-      background: #2d313a;
-    }
+      .canvas-container {
+        width: 100vw;
+        min-width: 1200px;
+        min-height: 100vh;
+        background: #2d313a;
+      }
 
-    .flex-cer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .flex-cer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .none {
+        display: none;
+      }
+    </style>
+  </head>
 
-  </style>
-</head>
+  <body>
+    <div class="canvas-container flex-cer" id="app"></div>
+  </body>
 
-<body>
-  <div class="canvas-container flex-cer" id="app"></div>
-</body>
+  <!-- S script -->
+  <script src="./src/index.js" type="module"></script>
+  <script type="module">
+    import { Tooth } from './src/index.js';
 
-<!-- S script -->
-<script src="./src/index.js" type="module"></script>
-<script type="module">
-  import { Tooth } from './src/index.js';
+    const data = window.localStorage.getItem('data');
+    const app = new Tooth({
+      el: 'app',
+      // init: data,
+      // onlyAbutment: true,
+      // onlyImplant: true,
+      // listening: false,
+      // finishLayer: false,
+      // buttonsLayer: false,
+    });
 
-  const data = window.localStorage.getItem('data');
-  const app = new Tooth({
-    el: 'app',
-    // init: data,
-    // onlyAbutment: true,
-    // onlyImplant: true,
-    // listening: false,
-    // finishLayer: false,
-    // buttonsLayer: false,
-  });
+    app.init();
 
-  app.init();
+    app.on('cancel', () => {
+      app.reset();
+    });
 
-  app.on('cancel', () => {
-    app.reset();
-  });
+    app.on('finish', () => {
+      const toothImage = app.toImage();
+      const data = app.getData();
+      // window.localStorage.setItem('data', JSON.stringify(data));
+      app.saveData();
+      app.toImage();
 
-  app.on('finish', () => {
-    const toothImage = app.toImage();
-    const data = app.getData();
-    // window.localStorage.setItem('data', JSON.stringify(data));
-    app.saveData();
-    app.toImage();
-
-    console.log(toothImage, data);
-  });
-</script>
-<!-- E script -->
+      console.log(toothImage, data);
+    });
+  </script>
+  <!-- E script -->
 </html>
