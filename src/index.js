@@ -113,6 +113,8 @@ class Tooth {
           post_core: [],
           // 冠桥
           crown_bridge: [],
+          // 内冠桥
+          inner_crown_bridge: [],
           // 贴面
           trim: [],
           // 基台
@@ -146,9 +148,14 @@ class Tooth {
               const tooth = target.stage.findOne(`#${id}`);
 
               tooth.state.forEach((status) => {
-                if (status == 'default') return;
-                const btn = target.stage.findOne(`.${status}`);
-                btn.opacity(0.5);
+                if (['default', ''].includes(status)) return;
+
+                if (status == 'inner_crown_bridge') {
+                  target.stage.findOne(`.implant`).opacity(0.5);
+                  target.stage.findOne(`.crown_bridge`).opacity(0.5);
+                } else {
+                  target.stage.findOne(`.${status}`)?.opacity(0.5);
+                }
               });
             });
           }
@@ -217,12 +224,6 @@ class Tooth {
 
     this.stage.add(toothsLayer);
 
-    if (this.initData) {
-      const resultLayer = createResultLayer(this.initData, this.state);
-      this.stage.add(resultLayer);
-      resultLayer.hide();
-    }
-
     this.handleEvent();
   }
 
@@ -244,7 +245,19 @@ class Tooth {
    * @returns data
    */
   getData() {
-    return this.state.data;
+    let n = {};
+    const d = this.state.data;
+
+    for (const key in d) {
+      if (d[key].length !== 0) {
+        n = {
+          ...n,
+          [key]: d[key],
+        };
+      }
+    }
+
+    return n;
   }
 
   /**
@@ -270,8 +283,14 @@ class Tooth {
   toImage() {
     this.clearSelected();
 
+    // 创建结果layer
+    const resultLayer = createResultLayer(this.getData(), this.state);
+    this.stage.add(resultLayer);
+
+    const number = Object.keys(this.getData()).length;
     const space = this.state.resultItemSpace;
-    const number = Object.keys(this.initData).length;
+
+    // 计算新高度
     const newHeight =
       this.stage.height() +
       Math.ceil(number / 2) * (buttonStyle.height + space) -
@@ -279,13 +298,13 @@ class Tooth {
     this.stage.height(newHeight);
 
     this.stage.findOne('.finishLayer').hide();
-    this.stage.findOne('.resultLayer').show();
 
-    console.log('space', this.state.resultItemSpace, space);
-
+    // 生成图片
     const image = this.stage.toDataURL({ pixelRatio: 1 });
+
+    // 还原
     this.stage.findOne('.finishLayer').show();
-    this.stage.findOne('.resultLayer').hide();
+    resultLayer.remove();
     this.stage.height(container.height);
 
     return image;
