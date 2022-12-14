@@ -30,7 +30,7 @@ const buttons = [
   {
     id: 'button6',
     name: 'crown_bridge',
-    zhName: '冠桥',
+    zhName: '桥',
   },
   {
     id: 'button7',
@@ -50,7 +50,7 @@ const buttons = [
   {
     id: 'button10',
     name: 'clear_selected',
-    zhName: '清空选中',
+    zhName: '取消选中',
   },
 ];
 
@@ -66,7 +66,7 @@ const onlyAbutment = [
   {
     id: 'button10',
     name: 'clear_selected',
-    zhName: '清空选中',
+    zhName: '取消选中',
   },
 ];
 
@@ -82,7 +82,7 @@ const onlyImplant = [
   {
     id: 'button10',
     name: 'clear_selected',
-    zhName: '清空选中',
+    zhName: '取消选中',
   },
 ];
 
