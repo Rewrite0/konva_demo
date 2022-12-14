@@ -13,9 +13,9 @@ const buttons = [
     zhName: '嵌体',
   },
   {
-    id: 'button3',
-    name: 'implant',
-    zhName: '植体',
+    id: 'inner_crown',
+    name: 'inner_crown',
+    zhName: '内冠',
   },
   {
     id: 'button4',

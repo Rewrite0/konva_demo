@@ -33,6 +33,7 @@ function handleButtonEvent(state, button) {
           opacity: 1,
         }).play();
       }
+
       state.selected.forEach((id) => {
         const tooth = state.stage.findOne(`#${id}`);
         if (tooth.state.includes(e.attrs.name)) {
@@ -270,11 +271,6 @@ function setToothConnect(state, status) {
           tooth.state = [...tooth.state, 'default'];
           tooth.findOne('.default').show();
         }
-      });
-
-      const box = state.stage.find('.tooth-box');
-      box.forEach((e) => {
-        e.strokeWidth(0);
       });
 
       return;
@@ -857,7 +853,9 @@ function setToothState(state, tooth, status) {
           tooth.clash = [...tooth.clash, ...newClash];
 
           // 去重
-          tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+          tooth.clash = tooth.clash.filter(
+            (item, index) => tooth.clash.indexOf(item) === index
+          );
         }
       });
     });
@@ -890,8 +888,12 @@ function setToothState(state, tooth, status) {
         tooth.clash = [...tooth.clash, ...newClash];
 
         // 去重
-        tooth.state = tooth.state.filter((item, index) => tooth.state.indexOf(item) === index);
-        tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+        tooth.state = tooth.state.filter(
+          (item, index) => tooth.state.indexOf(item) === index
+        );
+        tooth.clash = tooth.clash.filter(
+          (item, index) => tooth.clash.indexOf(item) === index
+        );
 
         console.log('tooth', tooth.state, tooth.clash);
       }
@@ -908,7 +910,9 @@ function setToothState(state, tooth, status) {
     });
     tooth.state.push(status);
     // 去重
-    tooth.clash = tooth.clash.filter((item, index) => tooth.clash.indexOf(item) === index);
+    tooth.clash = tooth.clash.filter(
+      (item, index) => tooth.clash.indexOf(item) === index
+    );
   }
   console.log('tooth', tooth);
 
