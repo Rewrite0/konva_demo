@@ -300,35 +300,6 @@ function createToothStateGroup(area, id, x, y) {
     stateGroup.add(defaultCrown);
     defaultCrown.hide();
 
-    const startY = style.height / 2 - defaultCrownImage.height - 90;
-    /**桩核y坐标 */
-    const postCoreY = () => {
-      if (area < 2) {
-        return startY + 20;
-      } else {
-        return 90 + defaultCrownImage.height - 20;
-      }
-    };
-
-    // 桩核
-    const postCore = new Konva.Image({
-      name: 'post_core',
-      image: postCoreImage,
-      x: style.width / 2,
-      y: postCoreY(),
-
-      offset: {
-        x: postCoreImage.width / 2,
-        y: postCoreImage.height,
-      },
-      listening: false,
-    });
-    stateGroup.add(postCore);
-    postCore.hide();
-    if (area >= 2) {
-      postCore.rotate(180);
-    }
-
     const abutmentY = () => {
       if (area < 2) {
         return 60;
@@ -405,6 +376,34 @@ function createToothStateGroup(area, id, x, y) {
     innerCrown.hide();
     if (area >= 2) {
       innerCrown.rotate(180);
+    }
+
+    /**桩核y坐标 */
+    const postCoreY = () => {
+      if (area < 2) {
+        return innerCrownY() - innerCrownImage.height - 5;
+      } else {
+        return innerCrownY() + innerCrownImage.height + 5;
+      }
+    };
+
+    // 桩核
+    const postCore = new Konva.Image({
+      name: 'post_core',
+      image: postCoreImage,
+      x: style.width / 2,
+      y: postCoreY(),
+
+      offset: {
+        x: postCoreImage.width / 2,
+        y: postCoreImage.height,
+      },
+      listening: false,
+    });
+    stateGroup.add(postCore);
+    postCore.hide();
+    if (area >= 2) {
+      postCore.rotate(180);
     }
   };
 

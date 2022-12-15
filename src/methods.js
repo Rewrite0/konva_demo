@@ -1004,20 +1004,24 @@ function setToothState(state, tooth, status) {
     tooth.findOne('.default').show();
   }
 
-  // 没有牙根的状态
-  // const noToothRoot = ['abutment', 'implant'];
   // 显示已有状态和特殊状态
   tooth.state.forEach((s) => {
     if (!['lever_clamp', 'bridge', 'crown_bridge', 'inner_crown_bridge'].includes(s)) {
       tooth.findOne(`.${s}`).show();
     }
 
-    // if (noToothRoot.includes(s) && !tooth.state.includes('crown')) {
-    //   tooth.findOne('.default_crown').show();
-    // }
-
     if (['lever_clamp', 'bridge'].includes(s)) {
       tooth.findOne('.default').hide();
+    }
+
+    // 添加基台时状态包含内冠桥或内冠则显示白色牙冠
+    if (['inner_crown_bridge', 'inner_crown'].includes(s) && status == 'abutment') {
+      tooth.findOne('.default_crown').show();
+    }
+
+    // 添加单个内冠时如果包含基台则显示白色牙冠
+    if (['abutment'].includes(s) && status == 'inner_crown') {
+      tooth.findOne('.default_crown').show();
     }
   });
 
