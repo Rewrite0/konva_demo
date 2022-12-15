@@ -208,11 +208,7 @@ function resetToothGroup(state) {
         tooth.findOne('.crown-bridge-line').remove();
       }
 
-      state.selected = [];
-      const box = state.stage.find('.tooth-box');
-      box.forEach((e) => {
-        e.strokeWidth(0);
-      });
+      clearSelected(state);
     });
   });
 }
@@ -278,10 +274,7 @@ function setToothConnect(state, status) {
       if (list.length < 2) {
         alert('请至少选择两个牙齿');
 
-        const box = state.stage.find('.tooth-box');
-        box.forEach((e) => {
-          e.strokeWidth(0);
-        });
+        clearSelected(state);
         return;
       }
     }
@@ -676,6 +669,7 @@ function setCrownBridge(state, arr = [], point = []) {
   const offsetY = 100;
 
   let isReturn = true;
+  let isInner = false;
 
   arr.forEach((id) => {
     const tooth = state.stage.findOne(`#tooth-${id}`);
@@ -703,7 +697,7 @@ function setCrownBridge(state, arr = [], point = []) {
     const lineStyle = {
       name: 'crown-bridge-line',
       id: `lcl-${id}`,
-      stroke: '#e5be48',
+      stroke: '#fff',
       strokeWidth: 2,
       points: [0, y, attrs.width, y],
     };
@@ -767,10 +761,11 @@ function setCrownBridge(state, arr = [], point = []) {
       ...lineStyle,
     });
     tooth.add(line);
+    line.zIndex(0);
 
-    if (!tooth.state.includes('crown')) {
-      setToothState(state, tooth, 'crown');
-    }
+    // if (!tooth.state.includes('crown')) {
+    //   setToothState(state, tooth, 'crown');
+    // }
 
     updateData(state, `tooth-${id}`);
   });
@@ -789,6 +784,7 @@ function setToothState(state, tooth, status) {
   const all = [
     'default',
     'crown',
+    'inner_crown',
     'default_crown',
     'inlay',
     'only_crown',
@@ -806,6 +802,8 @@ function setToothState(state, tooth, status) {
     ['post_core', 'implant'],
     // 贴面, 嵌体, 牙冠
     ['trim', 'inlay', 'crown'],
+    // 贴面, 嵌体, 内冠
+    ['trim', 'inlay', 'inner_crown'],
     // 植体, 牙根, 贴面, 嵌体,
     ['implant', 'trim', 'inlay', 'default'],
     // 基台, 牙根, 贴面, 嵌体,
@@ -818,6 +816,8 @@ function setToothState(state, tooth, status) {
   const intercept = {
     lever_clamp: ['inlay', 'trim', 'post_core'],
     bridge: ['inlay', 'trim', 'post_core'],
+    crown_bridge: ['inlay', 'trim', 'post_core', 'inner_crown'],
+    inner_crown_bridge: ['inlay', 'trim', 'post_core', 'crown'],
   };
 
   // 拦截操作

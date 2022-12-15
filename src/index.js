@@ -103,6 +103,8 @@ class Tooth {
         data: {
           // 牙冠
           crown: [],
+          // 内冠
+          inner_crown: [],
           // 嵌体
           inlay: [],
           // 植体
