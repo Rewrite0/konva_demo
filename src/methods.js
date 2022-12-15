@@ -227,11 +227,15 @@ function setToothConnect(state, status) {
 
   list.forEach((id) => {
     // 判断选中的牙是否在已设置的牙中, 如果是则清空所在的组
-    if (state.data[status].includes(id)) {
+    if (
+      state.data[status].includes(id) ||
+      state.data['inner_crown_bridge'].includes(id)
+    ) {
       let group;
 
       noset = true;
 
+      // 获取选中牙所在组
       if (Number(id.match(/\d+/g)) < 30) {
         group = state.data[status].filter((e) => {
           return Number(e.match(/\d+/g)) < 30;
@@ -242,22 +246,49 @@ function setToothConnect(state, status) {
         });
       }
 
+      // 判断是否是内冠桥
+      let isInner = false;
+      if (group.length == 0 && status == 'crown_bridge') {
+        if (Number(id.match(/\d+/g)) < 30) {
+          group = state.data['inner_crown_bridge'].filter((e) => {
+            return Number(e.match(/\d+/g)) < 30;
+          });
+        } else {
+          group = state.data['inner_crown_bridge'].filter((e) => {
+            return Number(e.match(/\d+/g)) > 30;
+          });
+        }
+
+        isInner = true;
+      }
+
       group.forEach((id) => {
         const tooth = state.stage.findOne(`#${id}`);
-        tooth.state = tooth.state.filter((e) => e !== status);
+        if (isInner) {
+          tooth.state = tooth.state.filter((e) => e !== 'inner_crown_bridge');
+        } else {
+          tooth.state = tooth.state.filter((e) => e !== status);
+        }
 
         switch (status) {
           case 'lever_clamp':
             tooth.findOne('.lever-clamp-line').remove();
             tooth.findOne('.lever-clamp-rect').remove();
             break;
+
           case 'bridge':
             tooth.findOne('.bridge-line').remove();
             tooth.findOne('.bridge-circle').remove();
             break;
+
           case 'crown_bridge':
             tooth.findOne('.crown-bridge-line').remove();
-            setToothState(state, tooth, 'crown');
+            if (isInner) {
+              setToothState(state, tooth, 'inner_crown');
+            } else {
+              setToothState(state, tooth, 'crown');
+            }
+
             break;
         }
 
@@ -668,30 +699,57 @@ function setCrownBridge(state, arr = [], point = []) {
   const min = Math.min.apply(null, point);
   const offsetY = 100;
 
-  let isReturn = true;
-  let isInner = false;
+  // let isReturn = true;
+  /** @type {string} - 桥类型 */
+  let type = '';
 
-  arr.forEach((id) => {
+  // arr.forEach((id) => {
+  //   const tooth = state.stage.findOne(`#tooth-${id}`);
+
+  //   if (!tooth.state.includes('crown_bridge')) {
+  //     isReturn = false;
+  //   }
+  // });
+
+  /** 遍历选中的tooth */
+  for (const id of arr) {
     const tooth = state.stage.findOne(`#tooth-${id}`);
 
-    if (!tooth.state.includes('crown_bridge')) {
-      isReturn = false;
+    // 判断是否进行反选
+    // if (
+    //   !tooth.state.includes('crown_bridge') &&
+    //   !tooth.state.includes('inner_crown_bridge')
+    // ) {
+    //   isReturn = false;
+    // }
+
+    // 判断桥类型
+    if (tooth.state.includes('crown')) {
+      type = 'crown_bridge';
+      break;
+    } else if (tooth.state.includes('inner_crown')) {
+      type = 'inner_crown_bridge';
+      break;
+    } else {
+      console.log('default');
+      alert('请先选择冠或内冠');
+      return;
     }
-  });
+  }
 
   arr.forEach((id) => {
     const tooth = state.stage.findOne(`#tooth-${id}`);
     const attrs = tooth.attrs;
 
-    if (tooth.state.includes('crown_bridge')) {
-      tooth.state = tooth.state.filter((e) => e !== 'crown_bridge');
-      tooth.findOne('.crown-bridge-line').remove();
-      setToothState(state, tooth, 'crown');
+    // if (tooth.state.includes('crown_bridge')) {
+    //   tooth.state = tooth.state.filter((e) => e !== 'crown_bridge');
+    //   tooth.findOne('.crown-bridge-line').remove();
+    //   setToothState(state, tooth, 'crown');
 
-      if (isReturn) return;
-    }
+    //   if (isReturn) return;
+    // }
 
-    tooth.state = [...tooth.state, 'crown_bridge'];
+    tooth.state = [...tooth.state, type];
 
     const y = max < 30 ? attrs.height / 2 - offsetY : offsetY;
     const lineStyle = {
@@ -763,9 +821,13 @@ function setCrownBridge(state, arr = [], point = []) {
     tooth.add(line);
     line.zIndex(0);
 
-    // if (!tooth.state.includes('crown')) {
-    //   setToothState(state, tooth, 'crown');
-    // }
+    switch (type) {
+      case 'crown_bridge':
+        setToothState(state, tooth, 'crown');
+        break;
+      case 'inner_crown_bridge':
+        setToothState(state, tooth, 'inner_crown');
+    }
 
     updateData(state, `tooth-${id}`);
   });
@@ -801,15 +863,15 @@ function setToothState(state, tooth, status) {
     // 桩核, 植体
     ['post_core', 'implant'],
     // 贴面, 嵌体, 牙冠
-    ['trim', 'inlay', 'crown'],
-    // 贴面, 嵌体, 内冠
-    ['trim', 'inlay', 'inner_crown'],
+    ['trim', 'inlay', 'crown', 'inner_crown'],
     // 植体, 牙根, 贴面, 嵌体,
     ['implant', 'trim', 'inlay', 'default'],
     // 基台, 牙根, 贴面, 嵌体,
     ['abutment', 'trim', 'inlay', 'default'],
     // 杆卡, 桥架
     ['lever_clamp', 'bridge'],
+    // 冠桥, 内冠桥
+    ['crown_bridge', 'inner_crown_bridge'],
   ];
 
   // 拦截
@@ -825,8 +887,15 @@ function setToothState(state, tooth, status) {
     if (tooth.state.includes(key) && intercept[key].includes(status)) return;
   }
 
+  /**
+   * 操作桥时如果选中tooth state包含冠或内冠则不进行操作
+   */
   if (tooth.state.includes('crown') && tooth.state.includes('crown_bridge')) {
     if (status === 'crown') return;
+  }
+
+  if (tooth.state.includes('inner_crown') && tooth.state.includes('inner_crown_bridge')) {
+    if (status === 'inner_crown') return;
   }
 
   // 添加状态
@@ -939,7 +1008,7 @@ function setToothState(state, tooth, status) {
   // const noToothRoot = ['abutment', 'implant'];
   // 显示已有状态和特殊状态
   tooth.state.forEach((s) => {
-    if (!['lever_clamp', 'bridge', 'crown_bridge'].includes(s)) {
+    if (!['lever_clamp', 'bridge', 'crown_bridge', 'inner_crown_bridge'].includes(s)) {
       tooth.findOne(`.${s}`).show();
     }
 
@@ -976,9 +1045,18 @@ function updateData(state, id) {
   }
 
   // 冠桥去重
-  if (state.data['crown_bridge'].length !== 0) {
+  if (
+    state.data['crown_bridge'].length !== 0 ||
+    state.data['inner_crown_bridge'].length !== 0
+  ) {
     state.data['crown_bridge'].forEach((id) => {
       state.data['crown'] = state.data['crown'].filter((e) => e !== id);
+      state.data['inner_crown'] = state.data['inner_crown'].filter((e) => e !== id);
+    });
+
+    state.data['inner_crown_bridge'].forEach((id) => {
+      state.data['crown'] = state.data['crown'].filter((e) => e !== id);
+      state.data['inner_crown'] = state.data['inner_crown'].filter((e) => e !== id);
     });
   }
 
