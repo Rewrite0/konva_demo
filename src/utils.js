@@ -48,6 +48,8 @@ function toothName(en) {
     trim: '贴面',
     abutment: '个性化基台',
     bridge: '桥架',
+    inner_crown: '内冠',
+    inner_crown_bridge: '内冠桥',
   };
 
   return obj[en];
