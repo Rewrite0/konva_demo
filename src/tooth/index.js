@@ -401,6 +401,10 @@ function createToothStateGroup(area, id, x, y) {
       listening: false,
     });
     stateGroup.add(postCore);
+    setTimeout(() => {
+      postCore.zIndex(9);
+    }, 1000);
+    // console.log(postCore.zIndex(9));
     postCore.hide();
     if (area >= 2) {
       postCore.rotate(180);
